@@ -7,7 +7,17 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:juku-header": "playwright test tests/specs/juku-header.spec.ts",
+    "test:juku-header:headed": "playwright test tests/specs/juku-header.spec.ts --headed",
+    "test:juku-interview": "playwright test tests/specs/juku-interview-section.spec.ts",
+    "test:juku-interview:headed": "playwright test tests/specs/juku-interview-section.spec.ts --headed",
+    "test:juku-experience": "playwright test tests/specs/juku-experience-section.spec.ts",
+    "test:juku-experience:headed": "playwright test tests/specs/juku-experience-section.spec.ts --headed",
+    "test:juku-course": "playwright test tests/specs/juku-course-section.spec.ts",
+    "test:juku-course:headed": "playwright test tests/specs/juku-course-section.spec.ts --headed",
+    "test:juku-price": "playwright test tests/specs/juku-price-section.spec.ts",
+    "test:juku-price:headed": "playwright test tests/specs/juku-price-section.spec.ts --headed"
   },
   "dependencies": {
     "react": "^19.0.0",
