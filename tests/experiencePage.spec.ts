@@ -8,12 +8,12 @@ test.describe('ExperiencePage', () => {
     experiencePage = new ExperiencePage(page);
   });
 
-  test('should navigate to experience page', async () => {
+  test('体験記ページに遷移できる', async () => {
     await experiencePage.goto('21');
     await expect(experiencePage.page).toHaveURL(/\/juku\/21\/experience\//);
   });
 
-  test('should interact with exam tabs', async () => {
+  test('受験タブと操作できる', async () => {
     await experiencePage.goto('21');
     
     // Check if we can get all tabs
@@ -31,7 +31,7 @@ test.describe('ExperiencePage', () => {
     }
   });
 
-  test('should get experience posts', async () => {
+  test('体験記投稿を取得できる', async () => {
     await experiencePage.goto('21');
     
     // Wait for posts to load
@@ -57,7 +57,7 @@ test.describe('ExperiencePage', () => {
     }
   });
 
-  test('should get all experience titles', async () => {
+  test('すべての体験記タイトルを取得できる', async () => {
     await experiencePage.goto('21');
     
     await experiencePage.page.waitForSelector('.bjc-post-experience', { timeout: 10000 });
@@ -69,7 +69,7 @@ test.describe('ExperiencePage', () => {
     });
   });
 
-  test('should click experience post', async () => {
+  test('体験記投稿をクリックできる', async () => {
     await experiencePage.goto('21');
     
     await experiencePage.page.waitForSelector('.bjc-post-experience', { timeout: 10000 });

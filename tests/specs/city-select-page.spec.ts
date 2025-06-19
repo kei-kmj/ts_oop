@@ -10,7 +10,7 @@ test.describe('City Select Page', () => {
     await cityPage.goto('hokkaido');
   });
 
-  test('Page elements should be visible', async ({ page }) => {
+  test('ページ要素が表示される', async ({ page }) => {
     // Wait for page to load
     await cityPage.waitForPageToLoad();
     
@@ -22,14 +22,14 @@ test.describe('City Select Page', () => {
     await expect(cityPage.cityLinksContainer).toBeVisible();
   });
 
-  test('Can get city count', async ({ page }) => {
+  test('市区町村数を取得できる', async ({ page }) => {
     await cityPage.waitForPageToLoad();
     
     const cityCount = await cityPage.getCityCount();
     expect(cityCount).toBeGreaterThan(0);
   });
 
-  test('Can get city data', async ({ page }) => {
+  test('市区町村データを取得できる', async ({ page }) => {
     await cityPage.waitForPageToLoad();
     
     // Get data for Sapporo
@@ -42,7 +42,7 @@ test.describe('City Select Page', () => {
     expect(sapporoData?.href).toContain('/search/requirement/grade/');
   });
 
-  test('Can get all city data', async ({ page }) => {
+  test('すべての市区町村データを取得できる', async ({ page }) => {
     await cityPage.waitForPageToLoad();
     
     const allCities = await cityPage.getAllCityData();
@@ -58,7 +58,7 @@ test.describe('City Select Page', () => {
     expect(firstCity.prefecture).toBe('hokkaido');
   });
 
-  test('Can get city with highest count', async ({ page }) => {
+  test('最も多い件数の市区町村を取得できる', async ({ page }) => {
     await cityPage.waitForPageToLoad();
     
     const topCity = await cityPage.getCityWithHighestCount();
@@ -70,7 +70,7 @@ test.describe('City Select Page', () => {
     expect(topCity?.name).toContain('札幌');
   });
 
-  test('Can filter cities by count range', async ({ page }) => {
+  test('件数範囲で市区町村をフィルタリングできる', async ({ page }) => {
     await cityPage.waitForPageToLoad();
     
     // Get cities with 100+ results
@@ -84,7 +84,7 @@ test.describe('City Select Page', () => {
     });
   });
 
-  test('Can search cities by pattern', async ({ page }) => {
+  test('パターンで市区町村を検索できる', async ({ page }) => {
     await cityPage.waitForPageToLoad();
     
     // Search for cities containing "市"
@@ -99,7 +99,7 @@ test.describe('City Select Page', () => {
     });
   });
 
-  test('Can select city', async ({ page }) => {
+  test('市区町村を選択できる', async ({ page }) => {
     await cityPage.waitForPageToLoad();
     
     // Select Sapporo (this will navigate to grade selection)
@@ -109,7 +109,7 @@ test.describe('City Select Page', () => {
     await expect(page).toHaveURL(/\/search\/requirement\/grade\//);
   });
 
-  test('Last search condition may be visible', async ({ page }) => {
+  test('最後の検索条件が表示される場合がある', async ({ page }) => {
     await cityPage.waitForPageToLoad();
     
     // Check if last search condition exists

@@ -196,39 +196,87 @@ export class SearchResultsHeaderSection {
     nearestStation: string;
     classroomId: string;
   }>> {
-    const article = this.getSearchResultArticle(jukuName);
-    const schoolSection = article.locator('.bjc-search-result-article--school_list');
-    
-    // Check if city matches expected city in heading
-    if (city) {
-      const heading = schoolSection.locator('.bjc-search-result-article--school_list-heading');
-      const headingText = await heading.textContent() || '';
-      if (!headingText.includes(city)) {
-        return [];
+    // First try to get data from search result articles (institution-based approach)
+    if (jukuName) {
+      const article = this.getSearchResultArticle(jukuName);
+      const schoolSection = article.locator('.bjc-search-result-article--school_list');
+      
+      // Check if city matches expected city in heading
+      if (city) {
+        const heading = schoolSection.locator('.bjc-search-result-article--school_list-heading');
+        const headingText = await heading.textContent() || '';
+        if (!headingText.includes(city)) {
+          return [];
+        }
+      }
+      
+      const schoolCards = schoolSection.locator('.bjc-search-result-article--school_list-card');
+      const count = await schoolCards.count();
+      const schools = [];
+      
+      for (let i = 0; i < count; i++) {
+        const card = schoolCards.nth(i);
+        const nameLink = card.locator('.bjc-search-result-article--school_list-card-header-heading a');
+        const name = await nameLink.textContent() || '';
+        const href = await nameLink.getAttribute('href') || '';
+        const station = await card.locator('.bjc-search-result-article--school_list-address:not(.is-heading)').textContent() || '';
+        
+        // Extract classroom ID from href
+        const classroomIdMatch = href.match(/\/class\/(\d+)\//);
+        const classroomId = classroomIdMatch ? classroomIdMatch[1] : '';
+        
+        schools.push({
+          name: name.trim(),
+          href,
+          nearestStation: station.trim(),
+          classroomId
+        });
+      }
+      
+      if (schools.length > 0) {
+        return schools;
       }
     }
     
-    const schoolCards = schoolSection.locator('.bjc-search-result-article--school_list-card');
-    const count = await schoolCards.count();
+    // Fallback approach: get data from search results paragraphs
+    // Based on the snapshot, school data is in paragraph elements with specific structure
     const schools = [];
     
-    for (let i = 0; i < count; i++) {
-      const card = schoolCards.nth(i);
-      const nameLink = card.locator('.bjc-search-result-article--school_list-card-header-heading a');
-      const name = await nameLink.textContent() || '';
-      const href = await nameLink.getAttribute('href') || '';
-      const station = await card.locator('.bjc-search-result-article--school_list-address:not(.is-heading)').textContent() || '';
+    try {
+      // Look for links that contain "/juku/" and "/class/" patterns in main content
+      const mainContent = this.page.locator('main');
+      const classroomLinks = mainContent.locator('a[href*="/juku/"][href*="/class/"]');
+      const count = await classroomLinks.count();
       
-      // Extract classroom ID from href
-      const classroomIdMatch = href.match(/\/class\/(\d+)\//);
-      const classroomId = classroomIdMatch ? classroomIdMatch[1] : '';
+      // Limit to prevent infinite loops
+      const maxResults = Math.min(count, 50);
       
-      schools.push({
-        name: name.trim(),
-        href,
-        nearestStation: station.trim(),
-        classroomId
-      });
+      for (let i = 0; i < maxResults; i++) {
+        try {
+          const link = classroomLinks.nth(i);
+          const href = await link.getAttribute('href') || '';
+          const name = await link.textContent() || '';
+          
+          // Extract classroom ID from href (pattern: /juku/16/class/92148/)
+          const classroomIdMatch = href.match(/\/class\/(\d+)\//);
+          if (classroomIdMatch && name.trim()) {
+            const classroomId = classroomIdMatch[1];
+            
+            schools.push({
+              name: name.trim(),
+              href,
+              nearestStation: '', // We'll fill this in later if needed
+              classroomId
+            });
+          }
+        } catch (e) {
+          // Skip this link if there's an error
+          continue;
+        }
+      }
+    } catch (e) {
+      // If the fallback fails completely, return empty array
+      console.warn('Failed to get school list data:', e);
     }
     
     return schools;
@@ -247,21 +295,70 @@ export class SearchResultsHeaderSection {
 
   // Click school actions
   async clickSchoolDetails(schoolName: string, jukuName?: string): Promise<void> {
-    const article = this.getSearchResultArticle(jukuName);
-    const schoolCard = article.locator('.bjc-search-result-article--school_list-card').filter({
-      has: this.page.getByRole('link', { name: schoolName })
-    });
+    // First try the original approach with specific juku
+    if (jukuName) {
+      const article = this.getSearchResultArticle(jukuName);
+      const schoolCard = article.locator('.bjc-search-result-article--school_list-card').filter({
+        has: this.page.getByRole('link', { name: schoolName })
+      });
+      
+      const detailsButton = schoolCard.locator('.bjc-button.free-primary a');
+      if (await detailsButton.count() > 0) {
+        await detailsButton.click();
+        return;
+      }
+    }
     
-    await schoolCard.locator('.bjc-button.free-primary a').click();
+    // Fallback: look for "詳細を見る" link near the school name in the main content
+    const schoolLink = this.page.locator('main').getByRole('link', { name: schoolName });
+    if (await schoolLink.count() > 0) {
+      // Find the details link near this school (look for "詳細を見る" text)
+      const parentSection = schoolLink.locator('xpath=ancestor::*[self::paragraph or self::section or self::div][1]');
+      const detailsLink = parentSection.getByRole('link', { name: '詳細を見る' }).or(
+        parentSection.locator('a[href*="/class/"][href$="/"]')
+      );
+      
+      if (await detailsLink.count() > 0) {
+        await detailsLink.first().click();
+        return;
+      }
+    }
+    
+    // Final fallback: click the school link itself (should navigate to details)
+    await schoolLink.first().click();
   }
 
   async clickSchoolPricing(schoolName: string, jukuName?: string): Promise<void> {
-    const article = this.getSearchResultArticle(jukuName);
-    const schoolCard = article.locator('.bjc-search-result-article--school_list-card').filter({
-      has: this.page.getByRole('link', { name: schoolName })
-    });
+    // First try the original approach with specific juku
+    if (jukuName) {
+      const article = this.getSearchResultArticle(jukuName);
+      const schoolCard = article.locator('.bjc-search-result-article--school_list-card').filter({
+        has: this.page.getByRole('link', { name: schoolName })
+      });
+      
+      const pricingButton = schoolCard.locator('.bjc-button.free-secondary a');
+      if (await pricingButton.count() > 0) {
+        await pricingButton.click();
+        return;
+      }
+    }
     
-    await schoolCard.locator('.bjc-button.free-secondary a').click();
+    // Fallback: look for "料金を知りたい" link near the school name
+    const schoolLink = this.page.locator('main').getByRole('link', { name: schoolName });
+    if (await schoolLink.count() > 0) {
+      // Find the pricing link near this school (look for "料金を知りたい" text)
+      const parentSection = schoolLink.locator('xpath=ancestor::*[self::paragraph or self::section or self::div][1]');
+      const pricingLink = parentSection.getByRole('link', { name: '料金を知りたい' }).or(
+        parentSection.locator('a[href*="/class/"][href*="/request/"]')
+      );
+      
+      if (await pricingLink.count() > 0) {
+        await pricingLink.first().click();
+        return;
+      }
+    }
+    
+    throw new Error(`Could not find pricing link for school: ${schoolName}`);
   }
 
   async clickSchoolMap(schoolName: string, jukuName?: string): Promise<void> {

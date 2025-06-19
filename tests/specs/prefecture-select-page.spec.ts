@@ -9,7 +9,7 @@ test.describe('Prefecture Select Page', () => {
     await prefecturePage.goto();
   });
 
-  test('Page elements should be visible', async ({ page }) => {
+  test('ページ要素が表示される', async ({ page }) => {
     // Check header elements
     await expect(prefecturePage.backLink).toBeVisible();
     await expect(prefecturePage.pageTitle).toBeVisible();
@@ -20,7 +20,7 @@ test.describe('Prefecture Select Page', () => {
     await expect(prefecturePage.kansaiSection).toBeVisible();
   });
 
-  test('Can select prefecture', async ({ page }) => {
+  test('都道府県を選択できる', async ({ page }) => {
     // Wait for page to load properly
     await prefecturePage.waitForPageToLoad();
     
@@ -36,7 +36,7 @@ test.describe('Prefecture Select Page', () => {
     // Test passes if we get this far without error
   });
 
-  test('Can expand regions and see prefectures', async ({ page }) => {
+  test('地方を展開して都道府県を表示できる', async ({ page }) => {
     // Expand Kansai region
     await prefecturePage.expandKansai();
     
@@ -52,7 +52,7 @@ test.describe('Prefecture Select Page', () => {
     expect(prefectures).toContain('和歌山県');
   });
 
-  test('Last search condition may be visible', async ({ page }) => {
+  test('最後の検索条件が表示される場合がある', async ({ page }) => {
     // Check if last search condition exists
     const hasLastSearch = await prefecturePage.hasLastSearchCondition();
     
@@ -62,7 +62,7 @@ test.describe('Prefecture Select Page', () => {
     }
   });
 
-  test.skip('Can select prefecture by value', async ({ page }) => {
+  test.skip('値で都道府県を選択できる', async ({ page }) => {
     // This test is skipped due to viewport issues
     // The method exists but needs refinement for mobile viewport
     await prefecturePage.waitForPageToLoad();
@@ -70,7 +70,7 @@ test.describe('Prefecture Select Page', () => {
     await prefecturePage.selectPrefectureByValue('hokkaido');
   });
 
-  test('Can get prefecture data', async ({ page }) => {
+  test('都道府県データを取得できる', async ({ page }) => {
     // Wait for page to load
     await prefecturePage.waitForPageToLoad();
     
@@ -87,7 +87,7 @@ test.describe('Prefecture Select Page', () => {
     expect(hokkaidoData?.url).toBe('/search/requirement/city/');
   });
 
-  test('Can get all prefecture data in region', async ({ page }) => {
+  test('地方内のすべての都道府県データを取得できる', async ({ page }) => {
     // Wait for page to load
     await prefecturePage.waitForPageToLoad();
     

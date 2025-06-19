@@ -6,7 +6,7 @@ import { GradeSelectPage } from '../pages/GradeSelectPage';
 import { SearchResultsHeaderSection } from '../pages/SearchResultsHeaderSection';
 
 test.describe('Station Line Search End-to-End', () => {
-  test('Navigate from top to juku detail via station/line search', async ({ page }) => {
+  test('トップページから駅・路線検索で塾詳細ページに遷移する', async ({ page }) => {
     // 1. Start from top page
     const topPage = new Top(page);
     await topPage.goto();
@@ -40,10 +40,9 @@ test.describe('Station Line Search End-to-End', () => {
     expect(stations.length).toBeGreaterThan(0);
     
     const firstStation = stations[0];
-    console.log('Selected station:', firstStation);
     
-    // Click on the first station
-    await searchHeader.clickStation(firstStation);
+    // Click on the first station using line-specific method
+    await searchHeader.clickStationInLine(firstStation, lineName);
     
     // 7. We should now be on the grade selection page
     const gradePage = new GradeSelectPage(page);
@@ -63,18 +62,16 @@ test.describe('Station Line Search End-to-End', () => {
     
     // 9. Get the first juku and click on it
     const firstJukuTitle = await searchResults.getJukuTitle();
-    console.log('First juku title:', firstJukuTitle);
     
     await searchResults.clickInstitutionTitle();
     
-    // 10. Verify we navigated to the juku detail page
-    await expect(page).toHaveURL(/\/juku\/\d+\/$/);
+    // 10. Verify we navigated to the juku or classroom detail page
+    await expect(page).toHaveURL(/\/juku\/\d+\/(class\/\d+\/)?$/);
     
     const currentUrl = page.url();
-    console.log('Final juku URL:', currentUrl);
   });
 
-  test('Search by specific station name using search box', async ({ page }) => {
+  test('検索ボックスで特定の駅名で検索する', async ({ page }) => {
     // 1. Start from top page
     const topPage = new Top(page);
     await topPage.goto();
@@ -117,8 +114,7 @@ test.describe('Station Line Search End-to-End', () => {
     const sapporoStation = stations.find(station => station.includes('札幌'));
     
     if (sapporoStation) {
-      console.log('Found Sapporo station:', sapporoStation);
-      await searchHeader.clickStation(sapporoStation);
+      await searchHeader.clickStationInLine(sapporoStation, 'JR函館本線(小樽～旭川)');
       
       // Continue with grade selection
       const gradePage = new GradeSelectPage(page);
@@ -134,17 +130,15 @@ test.describe('Station Line Search End-to-End', () => {
       
       // Get first juku and verify we can navigate to it
       const firstJukuTitle = await searchResults.getJukuTitle();
-      console.log('First juku near Sapporo station:', firstJukuTitle);
       
       // Click on the first juku
       await searchResults.clickInstitutionTitle();
-      await expect(page).toHaveURL(/\/juku\/\d+\/$/);
+      await expect(page).toHaveURL(/\/juku\/\d+\/(class\/\d+\/)?$/);
     } else {
-      console.log('Sapporo station not found in this line');
     }
   });
 
-  test('Explore multiple lines and select station with most jukus', async ({ page }) => {
+  test('複数の路線を探索して最も塾の多い駅を選択する', async ({ page }) => {
     // 1. Navigate to station search
     const topPage = new Top(page);
     await topPage.goto();
@@ -161,7 +155,6 @@ test.describe('Station Line Search End-to-End', () => {
     
     // 2. Get all available line names
     const allLines = await searchHeader.getAllLineNames();
-    console.log('Available lines:', allLines);
     expect(allLines.length).toBeGreaterThan(0);
     
     // 3. Open first few lines and find station with highest count
@@ -169,7 +162,6 @@ test.describe('Station Line Search End-to-End', () => {
     
     for (let i = 0; i < Math.min(3, allLines.length); i++) {
       const lineName = allLines[i];
-      console.log(`Checking line: ${lineName}`);
       
       await searchHeader.clickLineAccordion(lineName);
       
@@ -181,18 +173,16 @@ test.describe('Station Line Search End-to-End', () => {
         
         if (stations.length > 0) {
           for (const station of stations) {
-            const count = await searchHeader.getStationCount(station);
+            const count = await searchHeader.getStationCountInLine(station, lineName);
             if (count > bestStation.count) {
               bestStation = { name: station, count, line: lineName };
             }
           }
         }
       } catch (error) {
-        console.log(`Failed to get stations for line: ${lineName}`);
       }
     }
     
-    console.log('Best station found:', bestStation);
     
     // If no station with jukus found, use the first line's first station as fallback
     if (bestStation.count === 0) {
@@ -203,14 +193,13 @@ test.describe('Station Line Search End-to-End', () => {
       const firstLineStations = await searchHeader.getStationsInLine(firstLineName);
       if (firstLineStations.length > 0) {
         bestStation = { name: firstLineStations[0], count: 1, line: firstLineName };
-        console.log('Using fallback station:', bestStation);
       }
     }
     
     expect(bestStation.name).not.toBe('');
     
     // 4. Click on the station with most jukus
-    await searchHeader.clickStation(bestStation.name);
+    await searchHeader.clickStationInLine(bestStation.name, bestStation.line);
     
     // 5. Select grade and verify results
     const gradePage = new GradeSelectPage(page);
@@ -226,15 +215,14 @@ test.describe('Station Line Search End-to-End', () => {
     
     // Get all school data to verify we have multiple options
     const allSchools = await searchResults.getSchoolListData();
-    console.log(`Found ${allSchools.length} schools near ${bestStation.name} station`);
     expect(allSchools.length).toBeGreaterThan(0);
     
     // Click on first juku to complete the flow
     await searchResults.clickInstitutionTitle();
-    await expect(page).toHaveURL(/\/juku\/\d+\/$/);
+    await expect(page).toHaveURL(/\/juku\/\d+\/(class\/\d+\/)?$/);
   });
 
-  test('Select different line and station, then click details button', async ({ page }) => {
+  test('異なる路線と駅を選択して詳細ボタンをクリックする', async ({ page }) => {
     // 1. Navigate to station search
     const topPage = new Top(page);
     await topPage.goto();
@@ -258,25 +246,22 @@ test.describe('Station Line Search End-to-End', () => {
     
     // 3. Get stations and select one with good number of jukus
     const stations = await searchHeader.getStationsInLine(lineName);
-    console.log('Stations in JR千歳線:', stations);
     expect(stations.length).toBeGreaterThan(0);
     
     // Look for a station with decent number of jukus (like 新札幌 or 千歳)
     let selectedStation = stations[0]; // fallback to first station
     for (const station of stations) {
-      const count = await searchHeader.getStationCount(station);
+      const count = await searchHeader.getStationCountInLine(station, lineName);
       if (count >= 20) { // Select station with 20+ jukus
         selectedStation = station;
         break;
       }
     }
     
-    console.log('Selected station:', selectedStation);
-    const stationCount = await searchHeader.getStationCount(selectedStation);
-    console.log('Station juku count:', stationCount);
+    const stationCount = await searchHeader.getStationCountInLine(selectedStation, lineName);
     
     // Click on the selected station
-    await searchHeader.clickStation(selectedStation);
+    await searchHeader.clickStationInLine(selectedStation, lineName);
     
     // 4. Select middle school 2nd grade
     const gradePage = new GradeSelectPage(page);
@@ -294,12 +279,10 @@ test.describe('Station Line Search End-to-End', () => {
     
     // Get all school data
     const allSchools = await searchResults.getSchoolListData();
-    console.log(`Found ${allSchools.length} schools near ${selectedStation} station`);
     expect(allSchools.length).toBeGreaterThan(0);
     
     // Get the first school and click its "詳細をみる" button
     const firstSchool = allSchools[0];
-    console.log('First school:', firstSchool.name, 'ID:', firstSchool.classroomId);
     
     // Click the "詳細をみる" button for the first school
     await searchResults.clickSchoolDetails(firstSchool.name);
@@ -309,11 +292,10 @@ test.describe('Station Line Search End-to-End', () => {
     await expect(page).toHaveURL(expectedUrlPattern);
     
     const currentUrl = page.url();
-    console.log('Classroom detail URL:', currentUrl);
     expect(currentUrl).toMatch(/\/class\/\d+\/$/);
   });
 
-  test('Compare different stations on same line and select best option', async ({ page }) => {
+  test('同じ路線の異なる駅を比較して最適オプションを選択する', async ({ page }) => {
     // 1. Navigate to station search
     const topPage = new Top(page);
     await topPage.goto();
@@ -337,23 +319,20 @@ test.describe('Station Line Search End-to-End', () => {
     
     // 3. Get all stations and their counts, find the best one
     const stations = await searchHeader.getStationsInLine(lineName);
-    console.log('Stations in 札幌市営地下鉄南北線:', stations);
     
     let stationData = [];
     for (const station of stations) {
-      const count = await searchHeader.getStationCount(station);
+      const count = await searchHeader.getStationCountInLine(station, lineName);
       stationData.push({ name: station, count });
     }
     
     // Sort by count descending
     stationData.sort((a, b) => b.count - a.count);
-    console.log('Station data sorted by juku count:', stationData.slice(0, 5));
     
     // Select the station with most jukus
     const bestStation = stationData[0];
-    console.log('Best station selected:', bestStation);
     
-    await searchHeader.clickStation(bestStation.name);
+    await searchHeader.clickStationInLine(bestStation.name, lineName);
     
     // 4. Select elementary school all grades
     const gradePage = new GradeSelectPage(page);
@@ -368,20 +347,17 @@ test.describe('Station Line Search End-to-End', () => {
     expect(titleInfo.grade).toBe('小学生');
     
     const allSchools = await searchResults.getSchoolListData();
-    console.log(`Found ${allSchools.length} schools near ${bestStation.name} station`);
     expect(allSchools.length).toBeGreaterThan(0);
     
     // Try to click details for second school (if available)
     if (allSchools.length > 1) {
       const secondSchool = allSchools[1];
-      console.log('Second school:', secondSchool.name, 'ID:', secondSchool.classroomId);
       
       await searchResults.clickSchoolDetails(secondSchool.name);
       
       const expectedUrlPattern = new RegExp(`/class/${secondSchool.classroomId}/`);
       await expect(page).toHaveURL(expectedUrlPattern);
       
-      console.log('Successfully navigated to second school details');
     } else {
       // Fallback to first school if only one available
       const firstSchool = allSchools[0];
@@ -390,11 +366,10 @@ test.describe('Station Line Search End-to-End', () => {
       const expectedUrlPattern = new RegExp(`/class/${firstSchool.classroomId}/`);
       await expect(page).toHaveURL(expectedUrlPattern);
       
-      console.log('Navigated to first school details (only one available)');
     }
   });
 
-  test('Test multiple lines with different grade selections', async ({ page }) => {
+  test('異なる学年選択で複数の路線をテストする', async ({ page }) => {
     // 1. Navigate to station search
     const topPage = new Top(page);
     await topPage.goto();
@@ -414,20 +389,18 @@ test.describe('Station Line Search End-to-End', () => {
     await searchHeader.clickLineAccordion(lineName);
     
     const stations = await searchHeader.getStationsInLine(lineName);
-    console.log('Stations in JR室蘭本線:', stations);
     
     // Select a station with some jukus
     let selectedStation = stations[0];
     for (const station of stations) {
-      const count = await searchHeader.getStationCount(station);
+      const count = await searchHeader.getStationCountInLine(station, lineName);
       if (count >= 10) {
         selectedStation = station;
         break;
       }
     }
     
-    console.log('Selected station from JR室蘭本線:', selectedStation);
-    await searchHeader.clickStation(selectedStation);
+    await searchHeader.clickStationInLine(selectedStation, lineName);
     
     // 3. Select kindergarten grade
     const gradePage = new GradeSelectPage(page);
@@ -443,20 +416,16 @@ test.describe('Station Line Search End-to-End', () => {
     
     // Get schools and click details for the first available one
     const allSchools = await searchResults.getSchoolListData();
-    console.log(`Found ${allSchools.length} kindergarten schools near ${selectedStation}`);
     
     if (allSchools.length > 0) {
       const targetSchool = allSchools[0];
-      console.log('Target kindergarten school:', targetSchool.name);
       
       await searchResults.clickSchoolDetails(targetSchool.name);
       
       const expectedUrlPattern = new RegExp(`/class/${targetSchool.classroomId}/`);
       await expect(page).toHaveURL(expectedUrlPattern);
       
-      console.log('Successfully navigated to kindergarten school details');
     } else {
-      console.log('No kindergarten schools found at this station');
       // This is okay, some stations might not have kindergarten programs
     }
   });

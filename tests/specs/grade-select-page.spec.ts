@@ -10,7 +10,7 @@ test.describe('Grade Select Page', () => {
     await gradePage.goto('hokkaido', '1_01_801');
   });
 
-  test('Page elements should be visible', async ({ page }) => {
+  test('ページ要素が表示される', async ({ page }) => {
     // Wait for page to load
     await gradePage.waitForPageToLoad();
     
@@ -25,7 +25,7 @@ test.describe('Grade Select Page', () => {
     await expect(gradePage.othersSection).toBeVisible();
   });
 
-  test('Can get grade links count', async ({ page }) => {
+  test('学年リンク数を取得できる', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     const gradeCount = await gradePage.getGradeLinksCount();
@@ -34,7 +34,7 @@ test.describe('Grade Select Page', () => {
     expect(gradeCount).toBeGreaterThanOrEqual(16); // Minimum expected grade options
   });
 
-  test('Can get grade data', async ({ page }) => {
+  test('学年データを取得できる', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     // Get data for high school all
@@ -48,7 +48,7 @@ test.describe('Grade Select Page', () => {
     expect(highSchoolAllData?.href).toContain('/search');
   });
 
-  test('Can get all grade data', async ({ page }) => {
+  test('すべての学年データを取得できる', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     const allGrades = await gradePage.getAllGradeData();
@@ -65,7 +65,7 @@ test.describe('Grade Select Page', () => {
     expect(firstGrade.section).toBeTruthy();
   });
 
-  test('Can get grade data by section', async ({ page }) => {
+  test('セクション別に学年データを取得できる', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     // Get high school grades
@@ -83,7 +83,7 @@ test.describe('Grade Select Page', () => {
     expect(grade1?.gradeValue).toBe('11');
   });
 
-  test('Can filter single grades vs all options', async ({ page }) => {
+  test('個別学年とすべてオプションをフィルタリングできる', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     // Get single grades (individual grade levels)
@@ -108,7 +108,7 @@ test.describe('Grade Select Page', () => {
     });
   });
 
-  test('Can select specific grades', async ({ page }) => {
+  test('特定の学年を選択できる', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     // Select middle school 3rd grade (this will navigate to search results)
@@ -119,7 +119,7 @@ test.describe('Grade Select Page', () => {
     await expect(page).toHaveURL(/target_grade_id=10/);
   });
 
-  test('Can use convenience methods for grade selection', async ({ page }) => {
+  test('学年選択の便利メソッドを使用できる', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     // Test high school selection
@@ -129,7 +129,7 @@ test.describe('Grade Select Page', () => {
     await expect(page).toHaveURL(/target_grade_id=11.*12.*13/);
   });
 
-  test('Campaign modal functionality', async ({ page }) => {
+  test('キャンペーンモーダルの機能が動作する', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     // Check if campaign modal exists (may or may not be visible)
@@ -146,7 +146,7 @@ test.describe('Grade Select Page', () => {
     }
   });
 
-  test('Can get grades by value pattern', async ({ page }) => {
+  test('値パターンで学年を取得できる', async ({ page }) => {
     await gradePage.waitForPageToLoad();
     
     // Get elementary school grades (values 2-7)

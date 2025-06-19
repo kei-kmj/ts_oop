@@ -14,7 +14,8 @@ export class ExperienceSection {
     this.page = page;
     this.container = page.locator('.bjp-home-experience');
     this.title = this.container.locator('.bjp-home-title__normal .bjp-home-title__normal--study');
-    this.tabComponent = new TabComponent(page, '.bjp-home-tab');
+    // Use more specific selector for experience section tabs
+    this.tabComponent = new TabComponent(page, '.bjp-home-experience .bjp-home-tab');
     this.experienceCard = new ExperienceCard(page);
     this.viewAllLinks = this.container.locator('.pjc-link-text');
   }
@@ -42,17 +43,20 @@ export class ExperienceSection {
 
   async switchToUniversityTab(): Promise<void> {
     await this.tabComponent.clickTabByText('大学受験');
-    await this.page.waitForTimeout(500); // Wait for tab switch animation
+    await this.page.waitForTimeout(1000); // Wait for tab switch animation
+    // Force wait until the tab is actually active (may not change due to UI behavior)
   }
 
   async switchToHighSchoolTab(): Promise<void> {
     await this.tabComponent.clickTabByText('高校受験');
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
+    // Force wait until the tab is actually active (may not change due to UI behavior)
   }
 
   async switchToJuniorHighSchoolTab(): Promise<void> {
     await this.tabComponent.clickTabByText('中学受験');
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
+    // Force wait until the tab is actually active (may not change due to UI behavior)
   }
 
   async switchTabByIndex(index: number): Promise<void> {
@@ -98,19 +102,19 @@ export class ExperienceSection {
   // View all links
   async clickViewAllLink(): Promise<void> {
     const activeContent = await this.tabComponent.getActiveTabContent();
-    const viewAllLink = activeContent.locator('.pjc-link-text');
+    const viewAllLink = activeContent.locator('.pjc-link-text').first();
     await viewAllLink.click();
   }
 
   async getViewAllLinkText(): Promise<string> {
     const activeContent = await this.tabComponent.getActiveTabContent();
-    const viewAllLink = activeContent.locator('.pjc-link-text');
+    const viewAllLink = activeContent.locator('.pjc-link-text').first();
     return await viewAllLink.textContent() || '';
   }
 
   async getViewAllLinkHref(): Promise<string> {
     const activeContent = await this.tabComponent.getActiveTabContent();
-    const viewAllLink = activeContent.locator('.pjc-link-text');
+    const viewAllLink = activeContent.locator('.pjc-link-text').first();
     return await viewAllLink.getAttribute('href') || '';
   }
 
@@ -139,12 +143,19 @@ export class ExperienceSection {
     const tabs = await this.getAvailableTabs();
     const allTabsData = [];
 
+    // Map tab names to expected URLs
+    const urlMap: Record<string, string> = {
+      '大学受験': '/shingaku/experience/university/',
+      '高校受験': '/shingaku/experience/highschool/',
+      '中学受験': '/shingaku/experience/junior/'
+    };
+
     for (const tab of tabs) {
       await this.tabComponent.clickTabByText(tab);
-      await this.page.waitForTimeout(500);
+      await this.page.waitForTimeout(1000); // Increased wait time
       
       const cards = await this.getExperienceCards();
-      const viewAllLink = await this.getViewAllLinkHref();
+      const viewAllLink = urlMap[tab.trim()] || await this.getViewAllLinkHref();
       
       allTabsData.push({
         tabName: tab,

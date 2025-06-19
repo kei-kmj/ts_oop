@@ -10,7 +10,7 @@ test.describe('Search Results Header Section', () => {
     await page.goto('/search?prefecture=hokkaido&address_code_and_upper=1_01_801&target_grade_id=11&page=1');
   });
 
-  test('Header elements should be visible', async ({ page }) => {
+  test('ヘッダー要素が表示される', async ({ page }) => {
     // Wait for header to load
     await headerSection.waitForHeaderToLoad();
     
@@ -19,28 +19,28 @@ test.describe('Search Results Header Section', () => {
     await expect(headerSection.headerTitle).toBeVisible();
   });
 
-  test('Can extract city name from title', async ({ page }) => {
+  test('タイトルから市区町村名を抽出できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     const cityName = await headerSection.getCityName();
     expect(cityName).toBe('札幌市');
   });
 
-  test('Can extract grade info from title', async ({ page }) => {
+  test('タイトルから学年情報を抽出できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     const gradeInfo = await headerSection.getGradeInfo();
     expect(gradeInfo).toBe('高1');
   });
 
-  test('Can extract institution type from title', async ({ page }) => {
+  test('タイトルから機関タイプを抽出できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     const institutionType = await headerSection.getInstitutionType();
     expect(institutionType).toBe('学習塾・予備校');
   });
 
-  test('Can parse complete title information', async ({ page }) => {
+  test('完全なタイトル情報を解析できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     const titleInfo = await headerSection.parseTitleInfo();
@@ -51,14 +51,14 @@ test.describe('Search Results Header Section', () => {
     expect(titleInfo.fullTitle).toBe('札幌市の高1向けの学習塾・予備校一覧');
   });
 
-  test('Can validate title pattern', async ({ page }) => {
+  test('タイトルパターンを検証できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     const isValidPattern = await headerSection.validateTitlePattern();
     expect(isValidPattern).toBe(true);
   });
 
-  test('Can verify title contains specific values', async ({ page }) => {
+  test('タイトルに特定の値が含まれていることを確認できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     // Verify city
@@ -80,7 +80,7 @@ test.describe('Search Results Header Section', () => {
     expect(containsJuku).toBe(true);
   });
 
-  test('Can verify title matches expected parameters', async ({ page }) => {
+  test('タイトルが予期されるパラメータと一致することを確認できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     // Should match current parameters
@@ -92,7 +92,7 @@ test.describe('Search Results Header Section', () => {
     expect(matchesDifferent).toBe(false);
   });
 
-  test('Can extract grade pattern details', async ({ page }) => {
+  test('学年パターンの詳細を抽出できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     const gradePattern = await headerSection.extractGradePattern();
@@ -103,7 +103,7 @@ test.describe('Search Results Header Section', () => {
     expect(gradePattern.originalText).toBe('高1');
   });
 
-  test('Can generate expected title for different parameters', async ({ page }) => {
+  test('異なるパラメータに対して予期されるタイトルを生成できる', async ({ page }) => {
     await headerSection.waitForHeaderToLoad();
     
     // Test different city and grade combinations
@@ -122,7 +122,7 @@ test.describe('Search Results Header Section - Different Grades', () => {
     headerSection = new SearchResultsHeaderSection(page);
   });
 
-  test('Can handle high school all grades', async ({ page }) => {
+  test('高校生すべての学年を処理できる', async ({ page }) => {
     // Navigate to high school all grades
     await page.goto('/search?prefecture=hokkaido&address_code_and_upper=1_01_801&target_grade_id=11,12,13&page=1');
     await headerSection.waitForHeaderToLoad();
@@ -136,7 +136,7 @@ test.describe('Search Results Header Section - Different Grades', () => {
     expect(gradePattern.isAll).toBe(true);
   });
 
-  test('Can handle middle school grade', async ({ page }) => {
+  test('中学生の学年を処理できる', async ({ page }) => {
     // Navigate to middle school 3rd grade
     await page.goto('/search?prefecture=hokkaido&address_code_and_upper=1_01_801&target_grade_id=10&page=1');
     await headerSection.waitForHeaderToLoad();
@@ -151,7 +151,7 @@ test.describe('Search Results Header Section - Different Grades', () => {
     expect(gradePattern.isAll).toBe(false);
   });
 
-  test('Can handle elementary school grade', async ({ page }) => {
+  test('小学生の学年を処理できる', async ({ page }) => {
     // Navigate to elementary school 6th grade
     await page.goto('/search?prefecture=hokkaido&address_code_and_upper=1_01_801&target_grade_id=7&page=1');
     await headerSection.waitForHeaderToLoad();

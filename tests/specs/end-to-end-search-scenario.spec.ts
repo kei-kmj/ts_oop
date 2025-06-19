@@ -6,7 +6,7 @@ import { GradeSelectPage } from '../pages/GradeSelectPage';
 import { SearchResultsHeaderSection } from '../pages/SearchResultsHeaderSection';
 
 test.describe('End-to-End Search Scenario', () => {
-  test('Navigate from top page to institution detail page through search flow', async ({ page }) => {
+  test('トップページから検索フローを経て機関詳細ページに遷移する', async ({ page }) => {
     // 1. Start from top page
     const topPage = new Top(page);
     await topPage.goto();
@@ -43,7 +43,6 @@ test.describe('End-to-End Search Scenario', () => {
     
     // 7. Click on the first institution title
     const firstInstitutionTitle = await searchResults.getInstitutionTitle();
-    console.log('First institution title:', firstInstitutionTitle);
     
     await searchResults.clickInstitutionTitle();
     
@@ -52,13 +51,12 @@ test.describe('End-to-End Search Scenario', () => {
     
     // Additional verification - check if we're on the expected institution page
     const currentUrl = page.url();
-    console.log('Current URL:', currentUrl);
     
     // Verify the URL contains the institution detail pattern
     expect(currentUrl).toMatch(/\/juku\/\d+\/$/);
   });
   
-  test('Navigate to specific institution detail page', async ({ page }) => {
+  test('特定の機関詳細ページに遷移する', async ({ page }) => {
     // 1. Start from top page and navigate through search flow
     const topPage = new Top(page);
     await topPage.goto();
@@ -85,7 +83,6 @@ test.describe('End-to-End Search Scenario', () => {
     
     // 3. Click on the first available institution
     const institutionTitle = await searchResults.getInstitutionTitle();
-    console.log('Institution title:', institutionTitle);
     
     await searchResults.clickInstitutionTitle();
     
@@ -93,7 +90,7 @@ test.describe('End-to-End Search Scenario', () => {
     await expect(page).toHaveURL(/\/juku\/\d+\/$/);
   });
 
-  test('Navigate to pricing page through different city and grade selection', async ({ page }) => {
+  test('異なる市区町村と学年の選択で料金ページに遷移する', async ({ page }) => {
     // 1. Start from top page and navigate through search flow with different selections
     const topPage = new Top(page);
     await topPage.goto();
@@ -129,13 +126,11 @@ test.describe('End-to-End Search Scenario', () => {
     
     // 6. Get first juku name and first school name for that juku
     const firstJukuTitle = await searchResults.getJukuTitle();
-    console.log('First juku title:', firstJukuTitle);
     
     const schoolListData = await searchResults.getSchoolListData();
     expect(schoolListData.length).toBeGreaterThan(0);
     
     const firstSchool = schoolListData[0];
-    console.log('First school:', firstSchool.name, 'ID:', firstSchool.classroomId);
     
     // 7. Click "料金を知りたい" button for the first school of the first juku
     await searchResults.clickSchoolPricing(firstSchool.name);
@@ -147,11 +142,10 @@ test.describe('End-to-End Search Scenario', () => {
     
     // Additional verification - check if URL matches the expected format
     const currentUrl = page.url();
-    console.log('Current pricing URL:', currentUrl);
     expect(currentUrl).toMatch(/\/class\/\d+\/request\/$/);
   });
 
-  test('Navigate to specific pricing page (classroom ID 79668)', async ({ page }) => {
+  test('特定の料金ページに遷移する（教室ID 79668）', async ({ page }) => {
     // This test aims to reach the specific URL mentioned: https://bestjuku.com/class/79668/request/
     // We'll search systematically to find classroom ID 79668
     
@@ -181,12 +175,10 @@ test.describe('End-to-End Search Scenario', () => {
     
     // Get all school data and look for classroom ID 79668
     const allSchools = await searchResults.getSchoolListData();
-    console.log('All schools found:', allSchools.map(s => `${s.name} (ID: ${s.classroomId})`));
     
     const targetSchool = allSchools.find(school => school.classroomId === '79668');
     
     if (targetSchool) {
-      console.log('Found target school:', targetSchool.name, 'with ID 79668');
       
       // Click pricing button for the specific school
       await searchResults.clickSchoolPricing(targetSchool.name);
@@ -194,7 +186,6 @@ test.describe('End-to-End Search Scenario', () => {
       // Verify we reached the exact URL
       await expect(page).toHaveURL('https://bestjuku.com/class/79668/request/');
     } else {
-      console.log('Classroom ID 79668 not found in current search results');
       // For this test, we'll verify the pattern works with any available classroom
       if (allSchools.length > 0) {
         const firstSchool = allSchools[0];
@@ -202,7 +193,6 @@ test.describe('End-to-End Search Scenario', () => {
         
         const expectedPattern = new RegExp(`/class/${firstSchool.classroomId}/request/`);
         await expect(page).toHaveURL(expectedPattern);
-        console.log('Verified pricing page pattern with classroom ID:', firstSchool.classroomId);
       }
     }
   });

@@ -9,7 +9,7 @@ test.describe('Verify Page Objects', () => {
     await topPage.goto();
   });
 
-  test('Header elements should be visible', async ({ page }) => {
+  test('ヘッダー要素が表示される', async ({ page }) => {
     // Check header logo
     await expect(topPage.header.logoLink).toBeVisible();
     
@@ -20,7 +20,7 @@ test.describe('Verify Page Objects', () => {
     await expect(topPage.header.favoritesLink).toBeVisible();
   });
 
-  test('AreaSearchSection elements should be visible', async ({ page }) => {
+  test('エリア検索セクションの要素が表示される', async ({ page }) => {
     // Check section container
     await expect(topPage.areaSearchSection.sectionContainer).toBeVisible();
     
@@ -32,7 +32,7 @@ test.describe('Verify Page Objects', () => {
     await expect(topPage.areaSearchSection.searchByStationButton).toBeVisible();
   });
 
-  test('SearchFormSection elements should be visible', async ({ page }) => {
+  test('検索フォームセクションの要素が表示される', async ({ page }) => {
     // Check section container
     await expect(topPage.searchFormSection.sectionContainer).toBeVisible();
     
@@ -46,7 +46,7 @@ test.describe('Verify Page Objects', () => {
     await expect(topPage.searchFormSection.searchPlaceholder).toBeVisible();
   });
 
-  test('RecentlyViewedSection elements may or may not be visible', async ({ page }) => {
+  test('最近見た項目セクションの要素が表示される場合がある', async ({ page }) => {
     // Recently viewed section may only appear when user has browsing history
     const sectionCount = await topPage.recentlyViewedSection.sectionContainer.count();
     
@@ -62,7 +62,7 @@ test.describe('Verify Page Objects', () => {
     }
   });
 
-  test('RecentSearchConditionsSection elements may or may not be visible', async ({ page }) => {
+  test('最近の検索条件セクションの要素が表示される場合がある', async ({ page }) => {
     // Recent search conditions section may only appear when user has search history
     const sectionCount = await topPage.recentSearchConditionsSection.sectionContainer.count();
     
@@ -81,7 +81,7 @@ test.describe('Verify Page Objects', () => {
     }
   });
 
-  test('ReasonSection elements should be visible', async ({ page }) => {
+  test('選ばれる理由セクションの要素が表示される', async ({ page }) => {
     // Scroll to reason section
     await topPage.reasonSection.scrollToSection();
     
@@ -97,7 +97,7 @@ test.describe('Verify Page Objects', () => {
     await expect(topPage.reasonSection.thoroughCoverageItem).toBeVisible();
   });
 
-  test('JukuInquirySection elements should be visible', async ({ page }) => {
+  test('塾のお問い合わせセクションの要素が表示される', async ({ page }) => {
     // Scroll to juku inquiry section
     await topPage.jukuInquirySection.scrollToSection();
     
@@ -111,7 +111,7 @@ test.describe('Verify Page Objects', () => {
     await expect(topPage.jukuInquirySection.inquiryButton).toBeVisible();
   });
 
-  test('MainFooter elements should be visible', async ({ page }) => {
+  test('メインフッターの要素が表示される', async ({ page }) => {
     // Scroll to footer
     await topPage.mainFooter.scrollToFooter();
     
@@ -127,7 +127,7 @@ test.describe('Verify Page Objects', () => {
     await expect(topPage.mainFooter.companyInfoLink).toBeVisible();
   });
 
-  test('Get text content from elements', async ({ page }) => {
+  test('要素からテキストコンテンツを取得できる', async ({ page }) => {
     // Get favorites count
     const favoritesCount = await topPage.header.getFavoritesCount();
     expect(favoritesCount).toBe(0);

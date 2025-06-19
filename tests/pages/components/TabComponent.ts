@@ -43,8 +43,9 @@ export class TabComponent {
   }
 
   async getActiveTabText(): Promise<string> {
-    const activeTab = this.tabItems.locator('.is-active');
-    return await activeTab.textContent() || '';
+    const activeTab = this.tabItems.filter({ hasClass: 'is-active' }).first();
+    const text = await activeTab.textContent() || '';
+    return text.trim();
   }
 
   async getActiveTabDataId(): Promise<string> {
@@ -53,7 +54,7 @@ export class TabComponent {
   }
 
   async clickTabByText(tabText: string): Promise<void> {
-    const tab = this.tabItems.filter({ hasText: tabText });
+    const tab = this.tabItems.filter({ hasText: tabText }).first();
     await tab.click();
   }
 
@@ -84,10 +85,15 @@ export class TabComponent {
   }
 
   async waitForTabChange(expectedTabText: string, timeout: number = 3000): Promise<void> {
+    // Wait for the specific tab within this component to have the 'is-active' class
+    const targetTab = this.tabItems.filter({ hasText: expectedTabText });
+    await targetTab.waitFor({ state: 'visible', timeout: timeout });
+    
+    // Wait for the target tab to become active
     await this.page.waitForFunction(
-      (text) => {
+      (expectedText) => {
         const activeTab = document.querySelector('.tab__item.is-active');
-        return activeTab?.textContent?.trim() === text;
+        return activeTab?.textContent?.trim() === expectedText;
       },
       expectedTabText,
       { timeout }

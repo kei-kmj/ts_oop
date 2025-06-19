@@ -6,57 +6,43 @@ test.describe('Juku Course Section Tests', () => {
   const brandId = process.env.BRAND_ID || '21'; // Default to individual classroom Torai
 
   test.beforeEach(async ({ page }) => {
-    console.log(`Testing Juku Course Section with Brand ID: ${brandId}`);
     
     courseSection = new JukuCourseSection(page);
     await page.goto(`https://bestjuku.com/juku/${brandId}/`);
     await courseSection.waitForSectionToLoad();
   });
 
-  test('Verify course section basic functionality', async () => {
+  test('コースセクションの基本機能を検証する', async () => {
     const jukuNameElement = courseSection.page.locator('.bjc-juku-header-title');
     const jukuName = await jukuNameElement.textContent();
-    console.log(`Testing courses for: ${jukuName}`);
 
     // Verify section is visible
     expect(await courseSection.isVisible()).toBe(true);
 
     // Test tab functionality
     const availableTabs = await courseSection.getAvailableTabs();
-    console.log(`Available tabs: ${JSON.stringify(availableTabs)}`);
     expect(availableTabs.length).toBeGreaterThan(0);
 
     // Test default active tab
     const activeTab = await courseSection.getActiveTab();
-    console.log(`Default active tab: ${activeTab}`);
     expect(activeTab).toBeTruthy();
 
     // Test active tab heading
     const activeHeading = await courseSection.getActiveTabHeading();
-    console.log(`Active tab heading: ${activeHeading}`);
     expect(activeHeading).toBeTruthy();
 
     // Verify view all link
     expect(await courseSection.isViewAllLinkVisible()).toBe(true);
   });
 
-  test('Test course cards in each tab', async () => {
+  test('各タブのコースカードをテストする', async () => {
     const allTabsData = await courseSection.getAllTabsCourseData();
     
-    console.log('\nCourse data by tab:\n');
     for (const tabData of allTabsData) {
-      console.log(`${tabData.tabName}:`);
-      console.log(`- Total courses: ${tabData.courseCount}`);
       
       if (tabData.courses.length > 0) {
         const firstCourse = tabData.courses[0];
-        console.log(`- First course:`);
-        console.log(`  - Title: ${firstCourse.title}`);
-        console.log(`  - Course ID: ${firstCourse.courseId}`);
-        console.log(`  - Subjects: ${firstCourse.subjects.join(', ')}`);
-        console.log(`  - Description preview: ${firstCourse.description.substring(0, 100)}...`);
       }
-      console.log('');
     }
 
     // Verify each tab has courses and check for grade level availability
@@ -64,22 +50,16 @@ test.describe('Juku Course Section Tests', () => {
     const hasJuniorHigh = await courseSection.hasCoursesForGrade('中学生');
     const hasElementary = await courseSection.hasCoursesForGrade('小学生');
 
-    console.log('Course availability:');
-    console.log(`- High School: ${hasHighSchool}`);
-    console.log(`- Junior High: ${hasJuniorHigh}`);
-    console.log(`- Elementary: ${hasElementary}`);
 
     // At least one grade level should have courses
     expect(hasHighSchool || hasJuniorHigh || hasElementary).toBe(true);
   });
 
-  test('Test view all link', async () => {
+  test('すべて表示リンクをテストする', async () => {
     // Test view all link properties
     const viewAllText = await courseSection.getViewAllLinkText();
     const viewAllHref = await courseSection.getViewAllLinkHref();
     
-    console.log(`View all link text: ${viewAllText}`);
-    console.log(`View all link href: ${viewAllHref}`);
     
     expect(viewAllText).toContain('コース');
     expect(viewAllHref).toContain(`/juku/${brandId}/course/`);
@@ -93,16 +73,9 @@ test.describe('Juku Course Section Tests', () => {
     expect(currentUrl).toContain(`/juku/${brandId}/course/`);
   });
 
-  test('Test course summary and analysis', async () => {
+  test('コースのサマリーと分析をテストする', async () => {
     const summary = await courseSection.getCourseSummary();
     
-    console.log('\nCourse Summary:');
-    console.log(`- Total courses: ${summary.totalCourses}`);
-    console.log(`- By tab: ${JSON.stringify(summary.byTab)}`);
-    console.log(`- Exam preparation courses: ${summary.examPreparationCount}`);
-    console.log(`- Regular courses: ${summary.regularCourseCount}`);
-    console.log(`- Most common subjects: ${summary.mostCommonSubjects.join(', ')}`);
-    console.log(`- Subject coverage: ${JSON.stringify(summary.subjectCoverage)}`);
     
     expect(summary.totalCourses).toBeGreaterThan(0);
     expect(summary.examPreparationCount).toBeGreaterThanOrEqual(0);
@@ -113,42 +86,32 @@ test.describe('Juku Course Section Tests', () => {
     const examCourses = await courseSection.getExamPreparationCourses();
     const regularCourses = await courseSection.getRegularCourses();
     
-    console.log(`\nExam preparation courses: ${examCourses.length}`);
-    console.log(`Regular courses: ${regularCourses.length}`);
     
     expect(examCourses.length + regularCourses.length).toBeLessThanOrEqual(summary.totalCourses);
   });
 
-  test('Test subject-based filtering', async () => {
+  test('科目ベースのフィルタリングをテストする', async () => {
     // Test filtering by common subjects
     const mathCourses = await courseSection.getCoursesBySubject('数学');
     const englishCourses = await courseSection.getCoursesBySubject('英語');
     const japaneseCourses = await courseSection.getCoursesBySubject('国語');
     
-    console.log(`\nCourses by subject:`);
-    console.log(`- Math courses: ${mathCourses.length}`);
-    console.log(`- English courses: ${englishCourses.length}`);
-    console.log(`- Japanese courses: ${japaneseCourses.length}`);
     
     if (mathCourses.length > 0) {
-      console.log(`  Math course example: ${mathCourses[0].title}`);
     }
     if (englishCourses.length > 0) {
-      console.log(`  English course example: ${englishCourses[0].title}`);
     }
     
     // At least some courses should be available for core subjects
     expect(mathCourses.length + englishCourses.length + japaneseCourses.length).toBeGreaterThan(0);
   });
 
-  test('Test clicking course card', async () => {
+  test('コースカードのクリックをテストする', async () => {
     // First, get course cards from the active tab
     const courseCards = await courseSection.getCourseCards();
     
     if (courseCards.length > 0) {
       const firstCourse = courseCards[0];
-      console.log(`Clicking on course: ${firstCourse.title}`);
-      console.log(`Course ID: ${firstCourse.courseId}`);
       
       // Click the first course card
       await courseSection.clickCourseCard(0);
@@ -159,30 +122,22 @@ test.describe('Juku Course Section Tests', () => {
       // Verify we navigated to the course detail page
       const currentUrl = courseSection.page.url();
       expect(currentUrl).toContain(`/juku/${brandId}/course/${firstCourse.courseId}/`);
-      console.log('Successfully navigated to course detail page');
     } else {
-      console.log('No course cards found in the active tab');
     }
   });
 
-  test('Test tab switching and course retrieval', async () => {
+  test('タブの切り替えとコースの取得をテストする', async () => {
     const tabs = await courseSection.getAvailableTabs();
     
     for (const tab of tabs) {
-      console.log(`\nSwitching to ${tab} tab`);
       const courses = await courseSection.switchTabAndGetCourses(tab);
-      console.log(`Found ${courses.length} courses`);
       
       if (courses.length > 0) {
         const firstCourse = courses[0];
-        console.log(`First course - Title: ${firstCourse.title}`);
-        console.log(`First course - Subjects: ${firstCourse.subjects.join(', ')}`);
-        console.log(`First course - Course ID: ${firstCourse.courseId}`);
         
         // Check if it's exam preparation or regular course
         const isExamPrep = firstCourse.title.includes('受験対策') || firstCourse.title.includes('対策コース');
         const isRegular = firstCourse.title.includes('向けコース') && !isExamPrep;
-        console.log(`Course type: ${isExamPrep ? 'Exam Preparation' : isRegular ? 'Regular' : 'Other'}`);
       }
       
       // Verify the tab is now active

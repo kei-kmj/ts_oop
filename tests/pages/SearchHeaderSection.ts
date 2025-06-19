@@ -109,7 +109,16 @@ export class SearchHeaderSection {
   }
 
   async clickLineAccordion(lineName: string): Promise<void> {
-    await this.lineAccordionTriggers.filter({ hasText: lineName }).click();
+    const trigger = this.lineAccordionTriggers.filter({ hasText: lineName });
+    await trigger.waitFor({ state: 'visible', timeout: 5000 });
+    await trigger.click({ force: true });
+    
+    // Wait for the accordion animation to complete
+    await this.page.waitForTimeout(1000);
+    
+    // Verify the accordion opened
+    const targetLocator = trigger.locator('+ .bjc-search-form--station-list-accordion-target');
+    await targetLocator.waitFor({ state: 'visible', timeout: 5000 });
   }
 
   async getLineAccordionTrigger(lineName: string): Promise<Locator> {
@@ -149,6 +158,10 @@ export class SearchHeaderSection {
   async getStationsInLine(lineName: string): Promise<string[]> {
     const trigger = this.lineAccordionTriggers.filter({ hasText: lineName });
     const targetLocator = trigger.locator('+ .bjc-search-form--station-list-accordion-target');
+    
+    // Wait for the accordion to be open and visible
+    await targetLocator.waitFor({ state: 'visible', timeout: 5000 });
+    
     const stationLinks = targetLocator.locator('.bjc-form--checkbox--wrap a.search-form');
     
     const stations = await stationLinks.all();
@@ -165,31 +178,109 @@ export class SearchHeaderSection {
   }
 
   async clickStation(stationName: string): Promise<void> {
-    // Try exact match first, then fallback to contains match
-    const exactMatch = this.stationLinks.filter({ hasText: new RegExp(`^\\s*${stationName}\\s*（\\d+件）\\s*$`) });
-    const exactCount = await exactMatch.count();
+    // Find all visible accordion targets that are open
+    const openTargets = await this.accordionTargets.locator('.is-open').all();
     
-    if (exactCount > 0) {
-      await exactMatch.first().click();
+    let stationToClick: any = null;
+    
+    // Search through open accordions for the station
+    for (const target of openTargets) {
+      const stationLinks = target.locator('.bjc-form--checkbox--wrap a.search-form');
+      const exactMatch = stationLinks.filter({ hasText: new RegExp(`^\\s*${stationName}\\s*（\\d+件）\\s*$`) });
+      const count = await exactMatch.count();
+      
+      if (count > 0) {
+        stationToClick = exactMatch.first();
+        break;
+      }
+    }
+    
+    // If exact match not found, try contains match in first open accordion
+    if (!stationToClick && openTargets.length > 0) {
+      const firstOpenTarget = openTargets[0];
+      const stationLinks = firstOpenTarget.locator('.bjc-form--checkbox--wrap a.search-form');
+      const containsMatch = stationLinks.filter({ hasText: stationName });
+      const count = await containsMatch.count();
+      
+      if (count > 0) {
+        stationToClick = containsMatch.first();
+      }
+    }
+    
+    if (stationToClick) {
+      // Ensure the station is visible before clicking
+      await stationToClick.waitFor({ state: 'visible', timeout: 5000 });
+      await stationToClick.click({ force: true });
     } else {
-      await this.stationLinks.filter({ hasText: stationName }).first().click();
+      throw new Error(`Station "${stationName}" not found in any open accordion`);
     }
   }
 
   async getStationLink(stationName: string): Promise<Locator> {
-    return this.stationLinks.filter({ hasText: stationName });
+    // Find station link in the first open accordion
+    const openTargets = await this.accordionTargets.locator('.is-open').all();
+    
+    for (const target of openTargets) {
+      const stationLinks = target.locator('.bjc-form--checkbox--wrap a.search-form');
+      const exactMatch = stationLinks.filter({ hasText: new RegExp(`^\\s*${stationName}\\s*（\\d+件）\\s*$`) });
+      const count = await exactMatch.count();
+      
+      if (count > 0) {
+        return exactMatch.first();
+      }
+    }
+    
+    // Fallback to contains match
+    for (const target of openTargets) {
+      const stationLinks = target.locator('.bjc-form--checkbox--wrap a.search-form');
+      const containsMatch = stationLinks.filter({ hasText: stationName });
+      const count = await containsMatch.count();
+      
+      if (count > 0) {
+        return containsMatch.first();
+      }
+    }
+    
+    // Return a locator that won't match anything if station not found
+    return this.page.locator('non-existent-element');
   }
 
   async getStationHref(stationName: string): Promise<string> {
-    const link = this.stationLinks.filter({ hasText: stationName });
+    const link = await this.getStationLink(stationName);
     return await link.getAttribute('href') || '';
   }
 
   async getStationCount(stationName: string): Promise<number> {
-    const link = this.stationLinks.filter({ hasText: stationName });
-    const text = await link.textContent() || '';
-    const match = text.match(/（(\d+)件）/);
-    return match ? parseInt(match[1], 10) : 0;
+    // Find all visible accordion targets that are open
+    const openTargets = await this.accordionTargets.locator('.is-open').all();
+    
+    // Search through open accordions for the station
+    for (const target of openTargets) {
+      const stationLinks = target.locator('.bjc-form--checkbox--wrap a.search-form');
+      const exactMatch = stationLinks.filter({ hasText: new RegExp(`^\\s*${stationName}\\s*（\\d+件）\\s*$`) });
+      const count = await exactMatch.count();
+      
+      if (count > 0) {
+        const text = await exactMatch.first().textContent() || '';
+        const match = text.match(/（(\d+)件）/);
+        return match ? parseInt(match[1], 10) : 0;
+      }
+    }
+    
+    // If exact match not found, try contains match
+    for (const target of openTargets) {
+      const stationLinks = target.locator('.bjc-form--checkbox--wrap a.search-form');
+      const containsMatch = stationLinks.filter({ hasText: stationName });
+      const count = await containsMatch.count();
+      
+      if (count > 0) {
+        const text = await containsMatch.first().textContent() || '';
+        const match = text.match(/（(\d+)件）/);
+        return match ? parseInt(match[1], 10) : 0;
+      }
+    }
+    
+    return 0;
   }
 
   async getAllStationsInOpenAccordions(): Promise<string[]> {
@@ -206,5 +297,65 @@ export class SearchHeaderSection {
       }
     }
     return stationNames;
+  }
+
+  // Helper method to click station specifically within a given line context
+  async clickStationInLine(stationName: string, lineName: string): Promise<void> {
+    const trigger = this.lineAccordionTriggers.filter({ hasText: lineName });
+    const targetLocator = trigger.locator('+ .bjc-search-form--station-list-accordion-target');
+    
+    // Ensure the accordion is open
+    await targetLocator.waitFor({ state: 'visible', timeout: 5000 });
+    
+    const stationLinks = targetLocator.locator('.bjc-form--checkbox--wrap a.search-form');
+    const exactMatch = stationLinks.filter({ hasText: new RegExp(`^\\s*${stationName}\\s*（\\d+件）\\s*$`) });
+    const count = await exactMatch.count();
+    
+    if (count > 0) {
+      await exactMatch.first().waitFor({ state: 'visible', timeout: 5000 });
+      await exactMatch.first().click({ force: true });
+    } else {
+      // Try contains match as fallback
+      const containsMatch = stationLinks.filter({ hasText: stationName });
+      const containsCount = await containsMatch.count();
+      
+      if (containsCount > 0) {
+        await containsMatch.first().waitFor({ state: 'visible', timeout: 5000 });
+        await containsMatch.first().click({ force: true });
+      } else {
+        throw new Error(`Station "${stationName}" not found in line "${lineName}"`);
+      }
+    }
+  }
+
+  // Helper method to get station count specifically within a given line context
+  async getStationCountInLine(stationName: string, lineName: string): Promise<number> {
+    const trigger = this.lineAccordionTriggers.filter({ hasText: lineName });
+    const targetLocator = trigger.locator('+ .bjc-search-form--station-list-accordion-target');
+    
+    // Ensure the accordion is open
+    await targetLocator.waitFor({ state: 'visible', timeout: 5000 });
+    
+    const stationLinks = targetLocator.locator('.bjc-form--checkbox--wrap a.search-form');
+    const exactMatch = stationLinks.filter({ hasText: new RegExp(`^\\s*${stationName}\\s*（\\d+件）\\s*$`) });
+    const count = await exactMatch.count();
+    
+    if (count > 0) {
+      const text = await exactMatch.first().textContent() || '';
+      const match = text.match(/（(\d+)件）/);
+      return match ? parseInt(match[1], 10) : 0;
+    } else {
+      // Try contains match as fallback
+      const containsMatch = stationLinks.filter({ hasText: stationName });
+      const containsCount = await containsMatch.count();
+      
+      if (containsCount > 0) {
+        const text = await containsMatch.first().textContent() || '';
+        const match = text.match(/（(\d+)件）/);
+        return match ? parseInt(match[1], 10) : 0;
+      }
+    }
+    
+    return 0;
   }
 }

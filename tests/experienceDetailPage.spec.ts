@@ -8,12 +8,12 @@ test.describe('ExperienceDetailPage', () => {
     experienceDetailPage = new ExperienceDetailPage(page);
   });
 
-  test('should navigate to experience detail page', async () => {
+  test('体験記詳細ページに遷移できる', async () => {
     await experienceDetailPage.goto('71212');
     await expect(experienceDetailPage.page).toHaveURL(/\/shingaku\/experience\/71212\//);
   });
 
-  test('should show attended juku heading', async () => {
+  test('通っていた塾のヘッディングが表示される', async () => {
     await experienceDetailPage.goto('71212');
     
     // Wait for the heading to be visible
@@ -26,7 +26,7 @@ test.describe('ExperienceDetailPage', () => {
     expect(headingText).toBe('受験時に通っていた塾');
   });
 
-  test('should get juku summary cards', async () => {
+  test('塾のサマリーカードを取得できる', async () => {
     await experienceDetailPage.goto('71212');
     
     // Wait for juku cards to load
@@ -55,7 +55,7 @@ test.describe('ExperienceDetailPage', () => {
     }
   });
 
-  test('should get interview and review counts', async () => {
+  test('インタビューとレビューの件数を取得できる', async () => {
     await experienceDetailPage.goto('71212');
     
     await experienceDetailPage.page.waitForSelector('.bjp-juku-summary', { timeout: 10000 });
@@ -70,7 +70,7 @@ test.describe('ExperienceDetailPage', () => {
     }
   });
 
-  test('should click juku card buttons', async () => {
+  test('塾カードのボタンをクリックできる', async () => {
     await experienceDetailPage.goto('71212');
     
     await experienceDetailPage.page.waitForSelector('.bjp-juku-summary', { timeout: 10000 });

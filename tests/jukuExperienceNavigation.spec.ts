@@ -4,7 +4,7 @@ import { ExperiencePage } from './pages/ExperiencePage';
 import { ExperienceDetailPage } from './pages/ExperienceDetailPage';
 
 test.describe('Juku Experience Navigation', () => {
-  test('should navigate from juku page to experience detail and back to juku', async ({ page }) => {
+  test('塾ページから体験記詳細ページに移動し、再び塾ページに戻ることができる', async ({ page }) => {
     const jukuPage = new JukuPage(page);
     const experiencePage = new ExperiencePage(page);
     const experienceDetailPage = new ExperienceDetailPage(page);

@@ -204,7 +204,6 @@ export class JukuHeader extends Base {
     const actualFullStars = starCount.full;
     const expectedFullStars = expectedFull + roundedUp;
     
-    console.log(`Rating: ${rating}, Expected full: ${expectedFullStars}, Actual full: ${actualFullStars}, Expected half: ${expectedHalf}, Actual half: ${starCount.half}`);
     
     return actualFullStars === expectedFullStars && 
            starCount.half === expectedHalf && 

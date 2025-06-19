@@ -2,7 +2,7 @@ import {expect, test} from "@playwright/test";
 import {Juku} from "../pages/Juku";
 import {JukuAchievement} from "../pages/JukuAchievement";
 
-test('juku', async ({ page }) => {
+test('塾ページが表示される', async ({ page }) => {
   const jukuPage = new Juku(page);
   await jukuPage.goto('38');
   await expect(jukuPage.consultationLink.first()).toBeVisible();

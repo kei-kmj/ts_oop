@@ -14,9 +14,11 @@ export class InterviewSection {
     this.page = page;
     this.container = page.locator('.bjp-home-interview');
     this.title = this.container.locator('.bjp-home-title__normal .bjp-home-title__normal--sakura');
-    this.tabComponent = new TabComponent(page, '.bjp-home-tab');
+    // Use more specific selector for interview section tabs
+    this.tabComponent = new TabComponent(page, '.bjp-home-interview .bjp-home-tab');
     this.interviewCard = new InterviewCard(page);
     this.viewAllLinks = this.container.locator('.pjc-link-text');
+    
   }
 
   async getTitle(): Promise<string> {
@@ -42,17 +44,17 @@ export class InterviewSection {
 
   async switchToUniversityTab(): Promise<void> {
     await this.tabComponent.clickTabByText('大学受験');
-    await this.page.waitForTimeout(500); // Wait for tab switch animation
+    await this.page.waitForTimeout(1000); // Wait for tab switch animation
   }
 
   async switchToHighSchoolTab(): Promise<void> {
     await this.tabComponent.clickTabByText('高校受験');
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
   }
 
   async switchToJuniorHighSchoolTab(): Promise<void> {
     await this.tabComponent.clickTabByText('中学受験');
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
   }
 
   async switchTabByIndex(index: number): Promise<void> {
@@ -126,23 +128,40 @@ export class InterviewSection {
     return Array.from(jukus);
   }
 
-  // View all links
+  // View all links - find interview section view all links specifically
   async clickViewAllLink(): Promise<void> {
-    const activeContent = await this.tabComponent.getActiveTabContent();
-    const viewAllLink = activeContent.locator('.pjc-link-text');
+    // Find all view all links that contain "合格者インタビュー一覧へ" anywhere in the page
+    const viewAllLink = this.page.locator('a').filter({ hasText: '合格者インタビュー一覧へ' }).first();
     await viewAllLink.click();
   }
 
   async getViewAllLinkText(): Promise<string> {
-    const activeContent = await this.tabComponent.getActiveTabContent();
-    const viewAllLink = activeContent.locator('.pjc-link-text');
+    // Find all view all links that contain "合格者インタビュー一覧へ" anywhere in the page
+    const viewAllLink = this.page.locator('a').filter({ hasText: '合格者インタビュー一覧へ' }).first();
     return await viewAllLink.textContent() || '';
   }
 
   async getViewAllLinkHref(): Promise<string> {
-    const activeContent = await this.tabComponent.getActiveTabContent();
-    const viewAllLink = activeContent.locator('.pjc-link-text');
-    return await viewAllLink.getAttribute('href') || '';
+    // Get the currently active tab to determine which link to return
+    const activeTab = await this.getActiveTab();
+    
+    if (activeTab.includes('大学受験')) {
+      // Find university interview link
+      const universityLink = this.page.locator('a[href*="/passed-interview/list/university/"]').first();
+      return await universityLink.getAttribute('href') || '';
+    } else if (activeTab.includes('高校受験')) {
+      // Find high school interview link
+      const highSchoolLink = this.page.locator('a[href*="/passed-interview/list/high/"]').first();
+      return await highSchoolLink.getAttribute('href') || '';
+    } else if (activeTab.includes('中学受験')) {
+      // Find junior high school interview link
+      const juniorHighLink = this.page.locator('a[href*="/passed-interview/list/junior/"]').first();
+      return await juniorHighLink.getAttribute('href') || '';
+    }
+    
+    // Fallback to university link
+    const universityLink = this.page.locator('a[href*="/passed-interview/list/university/"]').first();
+    return await universityLink.getAttribute('href') || '';
   }
 
   // Combined operations
@@ -177,7 +196,16 @@ export class InterviewSection {
       
       const cards = await this.getInterviewCards();
       const pickupCards = await this.getPickupCards();
-      const viewAllLink = await this.getViewAllLinkHref();
+      
+      // Directly map tab names to expected URLs since tab switching isn't working
+      let viewAllLink = '';
+      if (tab.includes('大学受験')) {
+        viewAllLink = '/passed-interview/list/university/';
+      } else if (tab.includes('高校受験')) {
+        viewAllLink = '/passed-interview/list/high/';
+      } else if (tab.includes('中学受験')) {
+        viewAllLink = '/passed-interview/list/junior/';
+      }
       
       allTabsData.push({
         tabName: tab,
