@@ -9,15 +9,18 @@ test.describe('Juku Experience Navigation', () => {
     const experiencePage = new ExperiencePage(page);
     const experienceDetailPage = new ExperienceDetailPage(page);
     
-    // Step 1: Go to juku page (市進学院)
-    await jukuPage.goto('38');
+    // Get juku ID from environment variable or use default
+    const jukuId = process.env.JUKU_ID || '38';
+    
+    // Step 1: Go to juku page
+    await jukuPage.goto(jukuId);
     await jukuPage.waitForPageToLoad();
     
-    // Step 2: Click "市進学院の合格体験記を全て見る"
+    // Step 2: Click "合格体験記を全て見る"
     await jukuPage.experienceSection.clickViewAllLink();
     
     // Step 3: Verify we're on the experience page
-    await expect(page).toHaveURL(/\/juku\/38\/experience\//);
+    await expect(page).toHaveURL(new RegExp(`\\/juku\\/${jukuId}\\/experience\\/`));
     
     // Step 4: Wait for experience posts to load and click the first one
     await page.waitForSelector('.bjc-post-experience', { timeout: 10000 });
@@ -35,8 +38,8 @@ test.describe('Juku Experience Navigation', () => {
     // Step 8: Verify we're back on a juku page
     await expect(page).toHaveURL(/\/juku\/\d+\//);
     
-    // Optional: Verify it's the same juku (市進学院 - ID 38)
+    // Optional: Verify it's the same juku
     const currentUrl = page.url();
-    expect(currentUrl).toContain('/juku/38/');
+    expect(currentUrl).toContain(`/juku/${jukuId}/`);
   });
 });

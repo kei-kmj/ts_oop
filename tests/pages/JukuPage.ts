@@ -5,6 +5,7 @@ import { JukuInterviewSection } from './JukuInterviewSection';
 import { JukuExperienceSection } from './JukuExperienceSection';
 import { JukuCourseSection } from './JukuCourseSection';
 import { JukuPriceSection } from './JukuPriceSection';
+import { JukuTabNavigation } from './components/JukuTabNavigation';
 
 export class JukuPage extends Base {
   readonly header: JukuHeader;
@@ -12,6 +13,7 @@ export class JukuPage extends Base {
   readonly experienceSection: JukuExperienceSection;
   readonly courseSection: JukuCourseSection;
   readonly priceSection: JukuPriceSection;
+  readonly tabNavigation: JukuTabNavigation;
 
   constructor(page: Page) {
     super(page);
@@ -20,6 +22,7 @@ export class JukuPage extends Base {
     this.experienceSection = new JukuExperienceSection(page);
     this.courseSection = new JukuCourseSection(page);
     this.priceSection = new JukuPriceSection(page);
+    this.tabNavigation = new JukuTabNavigation(page);
   }
 
   async goto(brandId: string): Promise<void> {
