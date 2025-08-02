@@ -8,8 +8,9 @@ export class CTA extends Base {
 
   constructor(page: Page) {
     super(page);
-    this.trialCTALink = page.getByRole('link', { name: CTA_LINK.TRIAL });
-    this.docCTALink = page.getByRole('link', { name: CTA_LINK.DOC });
+    // ページ内のすべてのCTAボタンから該当するテキストを含むものを選択（page-fixedも含む）
+    this.trialCTALink = page.locator('.bjc-cta-btn').filter({ hasText: CTA_LINK.TRIAL });
+    this.docCTALink = page.locator('.bjc-cta-btn').filter({ hasText: CTA_LINK.DOC });
   }
 
   async clickTrialCTALink(): Promise<void> {

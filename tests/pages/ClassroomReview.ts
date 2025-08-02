@@ -28,7 +28,7 @@ export class ClassroomReview extends Base {
     this.firstArticle = this.articles.first();
     this.noReviewMessage = page.getByText(/この教室にはまだ口コミがありません。/);
     this.jukuReviewListLink = this.articles;
-    this.classroomTopLink = page.locator('.bjc-links--text').getByRole('link', { name: /のトップページへ戻る/ });
+    this.classroomTopLink = page.getByRole('link', { name: /のトップページへ戻る/ });
   }
 
   async gotoClassroomReview(brandId: string, classroomId: string): Promise<void> {

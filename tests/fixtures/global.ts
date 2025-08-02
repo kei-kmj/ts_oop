@@ -58,7 +58,7 @@ export const ADDRESS_LABELS = {
 export const CTA_LINK = {
   TRIAL: '体験授業の相談',
   DOC: '料金・コースを知りたい',
-};
+} as const;
 
 export const SHORT_COURSE_BUTTON = {
   SUMMER: '夏期講習',
@@ -67,10 +67,10 @@ export const SHORT_COURSE_BUTTON = {
 };
 
 export const CLASSROOM_TAB = {
-  top: { className: 'bjc-juku-tab-top', label: 'トップ' },
-  report: { className: 'bjc-juku-tab-report', label: 'レポート' },
-  review: { className: 'bjc-juku-tab-review', label: '口コミ' },
-  map: { className: 'bjc-juku-tab-map', label: '地図' },
+  top: { className: 'tab-nav-season', label: '教室トップ' },
+  report: { className: 'tab-nav-report', label: '詳細レポ' },
+  review: { className: 'tab-nav-kuchikomi', label: '口コミ' },
+  map: { className: 'tab-nav-map', label: '地図' },
 } as const;
 
 export type ClassroomTabKey = keyof typeof CLASSROOM_TAB;
