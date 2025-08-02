@@ -23,11 +23,11 @@ export class ExperiencePage extends Base {
   }
 
   async getExperienceTitle(index: number): Promise<string> {
-    return await this.getExperiencePost(index).locator('.bjc-post-experience-title').textContent() || '';
+    return (await this.getExperiencePost(index).locator('.bjc-post-experience-title').textContent()) || '';
   }
 
   async getExperienceMeta(index: number): Promise<string> {
-    return await this.getExperiencePost(index).locator('.bjc-post-experience-meta').textContent() || '';
+    return (await this.getExperiencePost(index).locator('.bjc-post-experience-meta').textContent()) || '';
   }
 
   async getExperienceYear(index: number): Promise<string> {

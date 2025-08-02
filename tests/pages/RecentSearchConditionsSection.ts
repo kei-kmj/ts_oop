@@ -9,16 +9,16 @@ export class RecentSearchConditionsSection {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Section container - reusing the same container class as recently viewed
     this.sectionContainer = page.locator('.bjp-home-favorite').filter({ has: page.getByText('最近検索した条件') });
-    
+
     // Section title
     this.sectionTitle = page.getByRole('heading', { level: 2 }).filter({ hasText: '最近検索した条件' });
-    
+
     // Conditions list container
     this.conditionsList = page.locator('.bjp-home-favorite__contents-conditions');
-    
+
     // Individual condition items
     this.conditionItems = this.conditionsList.locator('li a');
   }
@@ -32,7 +32,7 @@ export class RecentSearchConditionsSection {
   }
 
   async getConditionText(index: number): Promise<string> {
-    return await this.conditionItems.nth(index).textContent() || '';
+    return (await this.conditionItems.nth(index).textContent()) || '';
   }
 
   async getConditionHref(index: number): Promise<string | null> {
@@ -42,12 +42,12 @@ export class RecentSearchConditionsSection {
   async getAllConditions(): Promise<string[]> {
     const count = await this.getConditionsCount();
     const conditions: string[] = [];
-    
+
     for (let i = 0; i < count; i++) {
       const text = await this.getConditionText(i);
       conditions.push(text);
     }
-    
+
     return conditions;
   }
 
@@ -70,6 +70,6 @@ export class RecentSearchConditionsSection {
   }
 
   async getSectionTitleText(): Promise<string> {
-    return await this.sectionTitle.textContent() || '';
+    return (await this.sectionTitle.textContent()) || '';
   }
 }

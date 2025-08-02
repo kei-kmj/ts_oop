@@ -14,7 +14,7 @@ export class TabNavigation {
   }
 
   async getActiveTab(): Promise<string> {
-    return await this.container.locator('.is-active').textContent() || '';
+    return (await this.container.locator('.is-active').textContent()) || '';
   }
 
   async isTabActive(tabName: string): Promise<boolean> {
@@ -24,6 +24,6 @@ export class TabNavigation {
 
   async getAllTabs(): Promise<string[]> {
     const tabs = await this.container.locator('li').allTextContents();
-    return tabs.map(tab => tab.trim());
+    return tabs.map((tab) => tab.trim());
   }
 }

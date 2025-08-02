@@ -70,7 +70,7 @@ export class JukuPage extends Base {
     const hasExperiences = await this.hasExperienceSection();
     const hasCourses = await this.hasCourseSection();
     const hasPricing = await this.hasPriceSection();
-    
+
     let interviews = null;
     if (hasInterviews) {
       interviews = await this.interviewSection.getInterviewSummary();
@@ -100,7 +100,7 @@ export class JukuPage extends Base {
       hasInterviews,
       hasExperiences,
       hasCourses,
-      hasPricing
+      hasPricing,
     };
   }
 }

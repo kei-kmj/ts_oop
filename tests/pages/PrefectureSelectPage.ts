@@ -6,7 +6,7 @@ export class PrefectureSelectPage extends Base {
   readonly pageTitle: Locator;
   readonly lastSearchConditionSection: Locator;
   readonly lastSearchConditionText: Locator;
-  
+
   // Region sections
   readonly hokkaidoTohokuSection: Locator;
   readonly shinetsuHokurikuSection: Locator;
@@ -18,15 +18,15 @@ export class PrefectureSelectPage extends Base {
 
   constructor(page: Page) {
     super(page);
-    
+
     // Header elements
     this.backLink = page.getByRole('link', { name: '戻る' });
     this.pageTitle = page.getByRole('heading', { level: 1, name: '都道府県を選択' });
-    
+
     // Last search condition
     this.lastSearchConditionSection = page.locator('#last-search-condition');
     this.lastSearchConditionText = this.lastSearchConditionSection.locator('.bjc-search-history-text');
-    
+
     // Region sections
     this.hokkaidoTohokuSection = page.locator('.bjc-search-form--row').filter({ hasText: '北海道・東北' });
     this.shinetsuHokurikuSection = page.locator('.bjc-search-form--row').filter({ hasText: '信越・北陸' });
@@ -46,7 +46,7 @@ export class PrefectureSelectPage extends Base {
   }
 
   async getLastSearchConditionText(): Promise<string> {
-    return await this.lastSearchConditionText.textContent() || '';
+    return (await this.lastSearchConditionText.textContent()) || '';
   }
 
   async hasLastSearchCondition(): Promise<boolean> {
@@ -82,7 +82,7 @@ export class PrefectureSelectPage extends Base {
   } | null> {
     const label = this.page.locator(`label:has-text("${prefectureName}")`).first();
     const labelCount = await label.count();
-    
+
     if (labelCount === 0) {
       return null;
     }
@@ -96,7 +96,7 @@ export class PrefectureSelectPage extends Base {
     let url = '';
     try {
       const linkElement = this.page.locator(`link-to-prefecture-select[data-key="${radioId}"]`);
-      url = await linkElement.getAttribute('data-url') || '';
+      url = (await linkElement.getAttribute('data-url')) || '';
     } catch {
       url = '/search/requirement/city/'; // default URL
     }
@@ -105,17 +105,19 @@ export class PrefectureSelectPage extends Base {
       name: prefectureName,
       value: value || '',
       id: radioId,
-      url: url || ''
+      url: url || '',
     };
   }
 
   // Get all prefecture data in a region
-  async getAllPrefectureDataInRegion(regionSection: Locator): Promise<Array<{
-    name: string;
-    value: string;
-    id: string;
-    url: string;
-  }>> {
+  async getAllPrefectureDataInRegion(regionSection: Locator): Promise<
+    Array<{
+      name: string;
+      value: string;
+      id: string;
+      url: string;
+    }>
+  > {
     const labels = regionSection.locator('label');
     const count = await labels.count();
     const prefectureData = [];
@@ -124,7 +126,7 @@ export class PrefectureSelectPage extends Base {
       const label = labels.nth(i);
       const name = (await label.textContent())?.trim() || '';
       const radioId = await label.getAttribute('for');
-      
+
       if (radioId) {
         const radioButton = this.page.locator(`#${radioId}`);
         const value = await radioButton.getAttribute('value');
@@ -132,7 +134,7 @@ export class PrefectureSelectPage extends Base {
         let url = '';
         try {
           const linkElement = this.page.locator(`link-to-prefecture-select[data-key="${radioId}"]`);
-          url = await linkElement.getAttribute('data-url') || '/search/requirement/city/';
+          url = (await linkElement.getAttribute('data-url')) || '/search/requirement/city/';
         } catch {
           url = '/search/requirement/city/';
         }
@@ -141,7 +143,7 @@ export class PrefectureSelectPage extends Base {
           name,
           value: value || '',
           id: radioId,
-          url: url || ''
+          url: url || '',
         });
       }
     }
@@ -204,14 +206,14 @@ export class PrefectureSelectPage extends Base {
     const labels = body.locator('label');
     const count = await labels.count();
     const prefectures: string[] = [];
-    
+
     for (let i = 0; i < count; i++) {
       const text = await labels.nth(i).textContent();
       if (text) {
         prefectures.push(text.trim());
       }
     }
-    
+
     return prefectures;
   }
 

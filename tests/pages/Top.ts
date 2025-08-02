@@ -1,15 +1,14 @@
-import {Base} from "./Base";
-import {Page} from "@playwright/test";
-import {HeadingLevel} from "../consts/global";
-import {Header} from "./Header";
-import {ReasonSection} from "./ReasonSection";
-import {JukuInquirySection} from "./JukuInquirySection";
-import {MainFooter} from "./MainFooter";
-import {AreaSearchSection} from "./AreaSearchSection";
-import {SearchFormSection} from "./SearchFormSection";
-import {RecentlyViewedSection} from "./RecentlyViewedSection";
-import {RecentSearchConditionsSection} from "./RecentSearchConditionsSection";
-
+import { Base } from './Base';
+import { Page } from '@playwright/test';
+import { HeadingLevel } from '../consts/global';
+import { Header } from './Header';
+import { ReasonSection } from './ReasonSection';
+import { JukuInquirySection } from './JukuInquirySection';
+import { MainFooter } from './MainFooter';
+import { AreaSearchSection } from './AreaSearchSection';
+import { SearchFormSection } from './SearchFormSection';
+import { RecentlyViewedSection } from './RecentlyViewedSection';
+import { RecentSearchConditionsSection } from './RecentSearchConditionsSection';
 
 export class Top extends Base {
   readonly header: Header;
@@ -41,6 +40,6 @@ export class Top extends Base {
   }
 
   async getSearchByNameTitleText(): Promise<string> {
-    return await this.page.getByRole('heading', {name: /塾名・志望校名から探す/, level: HeadingLevel.H2 }).innerText();
+    return await this.page.getByRole('heading', { name: /塾名・志望校名から探す/, level: HeadingLevel.H2 }).innerText();
   }
 }

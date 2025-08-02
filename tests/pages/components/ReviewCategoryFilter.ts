@@ -13,11 +13,21 @@ export class ReviewCategoryFilter {
   constructor(page: Page) {
     this.page = page;
     this.filterContainer = page.locator('div.bjc-review-nav-narrow_down');
-    this.teacherQualityLink = page.locator('div.bjc-review-nav-narrow_down').getByRole('link', { name: '講師・授業の質' });
-    this.curriculumLink = page.locator('div.bjc-review-nav-narrow_down').getByRole('link', { name: '指導方針・カリキュラム' });
-    this.supportSystemLink = page.locator('div.bjc-review-nav-narrow_down').getByRole('link', { name: '塾のサポート体制' });
-    this.accessEnvironmentLink = page.locator('div.bjc-review-nav-narrow_down').getByRole('link', { name: 'アクセス・周りの環境' });
-    this.homeSupportLink = page.locator('div.bjc-review-nav-narrow_down').getByRole('link', { name: '家庭でのサポート' });
+    this.teacherQualityLink = page
+      .locator('div.bjc-review-nav-narrow_down')
+      .getByRole('link', { name: '講師・授業の質' });
+    this.curriculumLink = page
+      .locator('div.bjc-review-nav-narrow_down')
+      .getByRole('link', { name: '指導方針・カリキュラム' });
+    this.supportSystemLink = page
+      .locator('div.bjc-review-nav-narrow_down')
+      .getByRole('link', { name: '塾のサポート体制' });
+    this.accessEnvironmentLink = page
+      .locator('div.bjc-review-nav-narrow_down')
+      .getByRole('link', { name: 'アクセス・周りの環境' });
+    this.homeSupportLink = page
+      .locator('div.bjc-review-nav-narrow_down')
+      .getByRole('link', { name: '家庭でのサポート' });
     this.pricingButton = page.locator('div.bjc-review-nav-narrow_down').getByRole('button', { name: '料金について' });
   }
 
@@ -51,26 +61,26 @@ export class ReviewCategoryFilter {
 
   async getCategoryLinks(): Promise<{ text: string; href: string | null; disabled: boolean }[]> {
     const links: { text: string; href: string | null; disabled: boolean }[] = [];
-    
+
     const linkElements = [
       this.teacherQualityLink,
       this.curriculumLink,
       this.supportSystemLink,
       this.accessEnvironmentLink,
-      this.homeSupportLink
+      this.homeSupportLink,
     ];
 
     for (const link of linkElements) {
-      const text = await link.textContent() || '';
+      const text = (await link.textContent()) || '';
       const href = await link.getAttribute('href');
       links.push({ text: text.trim(), href, disabled: false });
     }
 
-    const pricingText = await this.pricingButton.textContent() || '';
-    links.push({ 
-      text: pricingText.trim(), 
-      href: null, 
-      disabled: await this.isPricingDisabled() 
+    const pricingText = (await this.pricingButton.textContent()) || '';
+    links.push({
+      text: pricingText.trim(),
+      href: null,
+      disabled: await this.isPricingDisabled(),
     });
 
     return links;
@@ -82,7 +92,7 @@ export class ReviewCategoryFilter {
       curriculum: this.clickCurriculum,
       support: this.clickSupportSystem,
       access: this.clickAccessEnvironment,
-      home: this.clickHomeSupport
+      home: this.clickHomeSupport,
     };
 
     await categoryMap[category].call(this);

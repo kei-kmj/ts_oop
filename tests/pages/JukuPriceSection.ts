@@ -11,13 +11,16 @@ export class JukuPriceSection {
   constructor(page: Page) {
     this.page = page;
     // Find the specific price section by looking for the one with price content
-    this.container = page.locator('.bjc-juku-inner-tab-wrap').filter({ 
-      has: page.locator('.bjc-juku-price')
-    }).first();
-    
+    this.container = page
+      .locator('.bjc-juku-inner-tab-wrap')
+      .filter({
+        has: page.locator('.bjc-juku-price'),
+      })
+      .first();
+
     // Create a juku-specific tab component that works within this container
     this.tabComponent = new JukuTabComponent(page, this.container);
-    
+
     // Use JukuPriceCard component for juku pages
     this.priceCard = new JukuPriceCard(page);
   }
@@ -67,63 +70,65 @@ export class JukuPriceSection {
   async getCurrentTabPriceData(): Promise<JukuPriceData> {
     const activeContent = this.container.locator('.js-tab__content.is-active');
     const priceContainer = activeContent.locator('.bjc-juku-price');
-    
+
     // Get course title from the heading in the active tab
-    const courseTitle = await activeContent.locator('.bjc-juku-heading-4').textContent() || '';
-    
+    const courseTitle = (await activeContent.locator('.bjc-juku-heading-4').textContent()) || '';
+
     // Get price table data
     const priceTable = priceContainer.locator('.bjc-juku-price-table');
     const rows = priceTable.locator('tr');
     const rowCount = await rows.count();
-    
+
     let initialCost = '';
     let monthlyCost = '';
-    
+
     for (let i = 0; i < rowCount; i++) {
       const row = rows.nth(i);
-      const header = await row.locator('th').textContent() || '';
-      const value = await row.locator('td').textContent() || '';
-      
+      const header = (await row.locator('th').textContent()) || '';
+      const value = (await row.locator('td').textContent()) || '';
+
       if (header.includes('初期費用')) {
         initialCost = value.trim();
       } else if (header.includes('月額費用')) {
         monthlyCost = value.trim();
       }
     }
-    
+
     // Extract numeric amounts
     const initialCostAmount = this.extractNumericAmount(initialCost);
     const monthlyCostAmount = this.extractNumericAmount(monthlyCost);
-    
+
     // Check if inquiry is required
     const isInquiryRequired = monthlyCost.includes('要問い合わせ') || monthlyCost.includes('お問い合わせ');
-    
+
     return {
       courseTitle: courseTitle.trim(),
       initialCost,
       monthlyCost,
       initialCostAmount,
       monthlyCostAmount,
-      isInquiryRequired
+      isInquiryRequired,
     };
   }
 
-  async getAllTabsPriceData(): Promise<Array<{
-    tabName: string;
-    priceData: JukuPriceData;
-  }>> {
+  async getAllTabsPriceData(): Promise<
+    Array<{
+      tabName: string;
+      priceData: JukuPriceData;
+    }>
+  > {
     const tabs = await this.getAvailableTabs();
     const allTabsData = [];
 
     for (const tab of tabs) {
       await this.tabComponent.clickTabByText(tab);
       await this.tabComponent.waitForTabChange(tab);
-      
+
       const priceData = await this.getCurrentTabPriceData();
-      
+
       allTabsData.push({
         tabName: tab,
-        priceData
+        priceData,
       });
     }
 
@@ -147,41 +152,41 @@ export class JukuPriceSection {
   async getActiveTabCourseTitle(): Promise<string> {
     const activeContent = this.container.locator('.js-tab__content.is-active');
     const heading = activeContent.locator('.bjc-juku-heading-4');
-    return await heading.textContent() || '';
+    return (await heading.textContent()) || '';
   }
 
   // Price analysis methods
   async getInitialCostForAllGrades(): Promise<Record<string, string>> {
     const allTabsData = await this.getAllTabsPriceData();
     const initialCosts: Record<string, string> = {};
-    
+
     for (const tabData of allTabsData) {
       initialCosts[tabData.tabName] = tabData.priceData.initialCost;
     }
-    
+
     return initialCosts;
   }
 
   async getMonthlyCostForAllGrades(): Promise<Record<string, string>> {
     const allTabsData = await this.getAllTabsPriceData();
     const monthlyCosts: Record<string, string> = {};
-    
+
     for (const tabData of allTabsData) {
       monthlyCosts[tabData.tabName] = tabData.priceData.monthlyCost;
     }
-    
+
     return monthlyCosts;
   }
 
   async areAllGradesInquiryBased(): Promise<boolean> {
     const allTabsData = await this.getAllTabsPriceData();
-    return allTabsData.every(tabData => tabData.priceData.isInquiryRequired);
+    return allTabsData.every((tabData) => tabData.priceData.isInquiryRequired);
   }
 
   async hasConsistentInitialCost(): Promise<boolean> {
     const initialCosts = await this.getInitialCostForAllGrades();
     const costs = Object.values(initialCosts);
-    return costs.every(cost => cost === costs[0]);
+    return costs.every((cost) => cost === costs[0]);
   }
 
   async getCommonInitialCost(): Promise<string | null> {
@@ -203,21 +208,21 @@ export class JukuPriceSection {
   }> {
     const allTabsData = await this.getAllTabsPriceData();
     const pricesByGrade: Record<string, JukuPriceData> = {};
-    
+
     for (const tabData of allTabsData) {
       pricesByGrade[tabData.tabName] = tabData.priceData;
     }
-    
+
     const commonInitialCost = await this.getCommonInitialCost();
     const isAllInquiryBased = await this.areAllGradesInquiryBased();
     const hasConsistentPricing = await this.hasConsistentInitialCost();
-    
+
     return {
       totalGrades: allTabsData.length,
       commonInitialCost,
       isAllInquiryBased,
       pricesByGrade,
-      hasConsistentPricing
+      hasConsistentPricing,
     };
   }
 

@@ -22,20 +22,22 @@ export class MainFooter {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Footer container
     this.footerContainer = page.locator('.bjl-footer');
-    
+
     // Logo
-    this.logoLink = this.footerContainer.getByRole('link').filter({ has: page.getByRole('img', { name: '塾選（ジュクセン）' }) });
-    
+    this.logoLink = this.footerContainer
+      .getByRole('link')
+      .filter({ has: page.getByRole('img', { name: '塾選（ジュクセン）' }) });
+
     // Footer copy text
     this.footerCopyText = page.locator('.bjp-footer__copy');
     this.classroomCountText = this.footerCopyText.locator('.num');
-    
+
     // Navigation list
     this.navList = page.getByRole('list').filter({ has: page.locator('.bjp-footer__nav-list') });
-    
+
     // Navigation links
     this.jukuListLink = page.getByRole('link', { name: '塾一覧' });
     this.writersListLink = page.getByRole('link', { name: '執筆者一覧' });
@@ -48,7 +50,7 @@ export class MainFooter {
     this.operationPolicyLink = page.getByRole('link', { name: '運営ポリシー' });
     this.nationalRankingLink = page.getByRole('link', { name: '全国の塾ランキング' });
     this.jukusenJournalLink = page.getByRole('link', { name: '塾選ジャーナル' });
-    
+
     // Copyright
     this.copyrightText = page.locator('.bjc-copyright');
   }
@@ -102,12 +104,12 @@ export class MainFooter {
   }
 
   async getClassroomCount(): Promise<string> {
-    return await this.classroomCountText.textContent() || '';
+    return (await this.classroomCountText.textContent()) || '';
   }
 
   async getCopyrightYear(): Promise<string> {
     const copyrightElement = this.copyrightText.locator('#js_copyright');
-    return await copyrightElement.textContent() || '';
+    return (await copyrightElement.textContent()) || '';
   }
 
   async isFooterVisible(): Promise<boolean> {
@@ -126,9 +128,9 @@ export class MainFooter {
       this.reviewPostLink,
       this.operationPolicyLink,
       this.nationalRankingLink,
-      this.jukusenJournalLink
+      this.jukusenJournalLink,
     ];
-    
+
     for (const link of links) {
       if (!(await link.isVisible())) {
         return false;

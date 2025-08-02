@@ -12,16 +12,19 @@ export class JukuExperienceSection {
   constructor(page: Page) {
     this.page = page;
     // Find the specific experience section by looking for the one with experience content
-    this.container = page.locator('.bjc-juku-inner-tab-wrap').filter({ 
-      has: page.locator('.bjc-posts-experience')
-    }).first();
-    
+    this.container = page
+      .locator('.bjc-juku-inner-tab-wrap')
+      .filter({
+        has: page.locator('.bjc-posts-experience'),
+      })
+      .first();
+
     // Create a juku-specific tab component that works within this container
     this.tabComponent = new JukuTabComponent(page, this.container);
-    
+
     // Use JukuExperienceCard component for juku pages
     this.experienceCard = new JukuExperienceCard(page);
-    
+
     // View all link at the bottom
     this.viewAllLink = this.container.locator('.bjc-juku-link');
   }
@@ -88,8 +91,8 @@ export class JukuExperienceSection {
   async clickExperienceCardByTitle(titleText: string): Promise<void> {
     const activeContent = this.container.locator('.js-tab__content.is-active');
     const cards = await this.getExperienceCards();
-    const targetCard = cards.find(card => card.title.includes(titleText));
-    
+    const targetCard = cards.find((card) => card.title.includes(titleText));
+
     if (targetCard) {
       const card = activeContent.locator(`.bjc-post-experience[href="${targetCard.href}"]`);
       await card.click();
@@ -102,11 +105,11 @@ export class JukuExperienceSection {
   }
 
   async getViewAllLinkText(): Promise<string> {
-    return await this.viewAllLink.textContent() || '';
+    return (await this.viewAllLink.textContent()) || '';
   }
 
   async getViewAllLinkHref(): Promise<string> {
-    return await this.viewAllLink.getAttribute('href') || '';
+    return (await this.viewAllLink.getAttribute('href')) || '';
   }
 
   async isViewAllLinkVisible(): Promise<boolean> {
@@ -120,24 +123,26 @@ export class JukuExperienceSection {
     return await this.getExperienceCards();
   }
 
-  async getAllTabsExperienceData(): Promise<Array<{
-    tabName: string;
-    cards: JukuExperienceCardData[];
-    cardCount: number;
-  }>> {
+  async getAllTabsExperienceData(): Promise<
+    Array<{
+      tabName: string;
+      cards: JukuExperienceCardData[];
+      cardCount: number;
+    }>
+  > {
     const tabs = await this.getAvailableTabs();
     const allTabsData = [];
 
     for (const tab of tabs) {
       await this.tabComponent.clickTabByText(tab);
       await this.tabComponent.waitForTabChange(tab);
-      
+
       const cards = await this.getExperienceCards();
-      
+
       allTabsData.push({
         tabName: tab,
         cards,
-        cardCount: cards.length
+        cardCount: cards.length,
       });
     }
 
@@ -160,26 +165,26 @@ export class JukuExperienceSection {
   async getExperiencesByYear(year: number): Promise<JukuExperienceCardData[]> {
     const allTabs = await this.getAllTabsExperienceData();
     const experiencesByYear: JukuExperienceCardData[] = [];
-    
+
     for (const tabData of allTabs) {
-      const yearExperiences = tabData.cards.filter(card => card.year === year);
+      const yearExperiences = tabData.cards.filter((card) => card.year === year);
       experiencesByYear.push(...yearExperiences);
     }
-    
+
     return experiencesByYear;
   }
 
   async getExperiencesByDeviationRange(minDeviation: number, maxDeviation: number): Promise<JukuExperienceCardData[]> {
     const allTabs = await this.getAllTabsExperienceData();
     const experiencesByDeviation: JukuExperienceCardData[] = [];
-    
+
     for (const tabData of allTabs) {
-      const deviationExperiences = tabData.cards.filter(card => 
-        card.startingDeviation >= minDeviation && card.startingDeviation <= maxDeviation
+      const deviationExperiences = tabData.cards.filter(
+        (card) => card.startingDeviation >= minDeviation && card.startingDeviation <= maxDeviation,
       );
       experiencesByDeviation.push(...deviationExperiences);
     }
-    
+
     return experiencesByDeviation;
   }
 
@@ -198,35 +203,35 @@ export class JukuExperienceSection {
     let deviationCount = 0;
     const yearDistribution: Record<number, number> = {};
     let pickupCount = 0;
-    
+
     for (const tabData of allTabs) {
       totalExperiences += tabData.cardCount;
       byTab[tabData.tabName] = tabData.cardCount;
-      
+
       for (const card of tabData.cards) {
         if (card.startingDeviation > 0) {
           totalDeviation += card.startingDeviation;
           deviationCount++;
         }
-        
+
         if (card.year > 0) {
           yearDistribution[card.year] = (yearDistribution[card.year] || 0) + 1;
         }
-        
+
         if (card.isPickup) {
           pickupCount++;
         }
       }
     }
-    
+
     const averageStartingDeviation = deviationCount > 0 ? Math.round(totalDeviation / deviationCount) : 0;
-    
+
     return {
       totalExperiences,
       byTab,
       averageStartingDeviation,
       yearDistribution,
-      pickupCount
+      pickupCount,
     };
   }
 

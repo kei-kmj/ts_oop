@@ -12,10 +12,10 @@ test.describe('Verify Page Objects', () => {
   test('ヘッダー要素が表示される', async ({ page }) => {
     // Check header logo
     await expect(topPage.header.logoLink).toBeVisible();
-    
+
     // Check campaign button
     await expect(topPage.header.campaignButton).toBeVisible();
-    
+
     // Check favorites link
     await expect(topPage.header.favoritesLink).toBeVisible();
   });
@@ -23,10 +23,10 @@ test.describe('Verify Page Objects', () => {
   test('エリア検索セクションの要素が表示される', async ({ page }) => {
     // Check section container
     await expect(topPage.areaSearchSection.sectionContainer).toBeVisible();
-    
+
     // Check section title
     await expect(topPage.areaSearchSection.sectionTitle).toBeVisible();
-    
+
     // Check search buttons
     await expect(topPage.areaSearchSection.searchByCityButton).toBeVisible();
     await expect(topPage.areaSearchSection.searchByStationButton).toBeVisible();
@@ -35,13 +35,13 @@ test.describe('Verify Page Objects', () => {
   test('検索フォームセクションの要素が表示される', async ({ page }) => {
     // Check section container
     await expect(topPage.searchFormSection.sectionContainer).toBeVisible();
-    
+
     // Check section title
     await expect(topPage.searchFormSection.sectionTitle).toBeVisible();
-    
+
     // Check search input
     await expect(topPage.searchFormSection.searchInput).toBeVisible();
-    
+
     // Check placeholder
     await expect(topPage.searchFormSection.searchPlaceholder).toBeVisible();
   });
@@ -49,7 +49,7 @@ test.describe('Verify Page Objects', () => {
   test('最近見た項目セクションの要素が表示される場合がある', async ({ page }) => {
     // Recently viewed section may only appear when user has browsing history
     const sectionCount = await topPage.recentlyViewedSection.sectionContainer.count();
-    
+
     if (sectionCount > 0) {
       // If section exists, check its elements
       await expect(topPage.recentlyViewedSection.sectionContainer).toBeVisible();
@@ -65,13 +65,13 @@ test.describe('Verify Page Objects', () => {
   test('最近の検索条件セクションの要素が表示される場合がある', async ({ page }) => {
     // Recent search conditions section may only appear when user has search history
     const sectionCount = await topPage.recentSearchConditionsSection.sectionContainer.count();
-    
+
     if (sectionCount > 0) {
       // If section exists, check its elements
       await expect(topPage.recentSearchConditionsSection.sectionContainer).toBeVisible();
       await expect(topPage.recentSearchConditionsSection.sectionTitle).toBeVisible();
       await expect(topPage.recentSearchConditionsSection.conditionsList).toBeVisible();
-      
+
       // Check if there are any condition items
       const conditionsCount = await topPage.recentSearchConditionsSection.getConditionsCount();
       expect(conditionsCount).toBeGreaterThan(0);
@@ -84,13 +84,13 @@ test.describe('Verify Page Objects', () => {
   test('選ばれる理由セクションの要素が表示される', async ({ page }) => {
     // Scroll to reason section
     await topPage.reasonSection.scrollToSection();
-    
+
     // Check section container
     await expect(topPage.reasonSection.sectionContainer).toBeVisible();
-    
+
     // Check section title
     await expect(topPage.reasonSection.sectionTitle).toBeVisible();
-    
+
     // Check reason items
     await expect(topPage.reasonSection.classroomCountItem).toBeVisible();
     await expect(topPage.reasonSection.reviewCountItem).toBeVisible();
@@ -100,13 +100,13 @@ test.describe('Verify Page Objects', () => {
   test('塾のお問い合わせセクションの要素が表示される', async ({ page }) => {
     // Scroll to juku inquiry section
     await topPage.jukuInquirySection.scrollToSection();
-    
+
     // Check section container
     await expect(topPage.jukuInquirySection.sectionContainer).toBeVisible();
-    
+
     // Check section title
     await expect(topPage.jukuInquirySection.sectionTitle).toBeVisible();
-    
+
     // Check inquiry button
     await expect(topPage.jukuInquirySection.inquiryButton).toBeVisible();
   });
@@ -114,13 +114,13 @@ test.describe('Verify Page Objects', () => {
   test('メインフッターの要素が表示される', async ({ page }) => {
     // Scroll to footer
     await topPage.mainFooter.scrollToFooter();
-    
+
     // Check footer container
     await expect(topPage.mainFooter.footerContainer).toBeVisible();
-    
+
     // Check logo
     await expect(topPage.mainFooter.logoLink).toBeVisible();
-    
+
     // Check some navigation links
     await expect(topPage.mainFooter.jukuListLink).toBeVisible();
     await expect(topPage.mainFooter.faqLink).toBeVisible();
@@ -131,46 +131,46 @@ test.describe('Verify Page Objects', () => {
     // Get favorites count
     const favoritesCount = await topPage.header.getFavoritesCount();
     expect(favoritesCount).toBe(0);
-    
+
     // Get section title
     const sectionTitle = await topPage.areaSearchSection.getSectionTitleText();
     expect(sectionTitle).toContain('全国の塾・予備校を探す');
-    
+
     // Get search form section title
     const searchFormTitle = await topPage.searchFormSection.getSectionTitleText();
     expect(searchFormTitle).toContain('塾名・志望校名から探す');
-    
+
     // Get placeholder text
     const placeholderText = await topPage.searchFormSection.getPlaceholderText();
     expect(placeholderText).toBe('塾名、志望校名を入力');
-    
+
     // Check recently viewed section (if it exists)
-    const recentlyViewedExists = await topPage.recentlyViewedSection.sectionContainer.count() > 0;
-    
+    const recentlyViewedExists = (await topPage.recentlyViewedSection.sectionContainer.count()) > 0;
+
     if (recentlyViewedExists) {
       const hasRecentlyViewedItems = await topPage.recentlyViewedSection.hasAnyItems();
       expect(hasRecentlyViewedItems).toBe(true);
-      
+
       const viewAllHref = await topPage.recentlyViewedSection.getViewAllLinkHref();
       expect(viewAllHref).toBe('/history/');
     }
-    
+
     // Check recent search conditions section (if it exists)
-    const searchConditionsExists = await topPage.recentSearchConditionsSection.sectionContainer.count() > 0;
-    
+    const searchConditionsExists = (await topPage.recentSearchConditionsSection.sectionContainer.count()) > 0;
+
     if (searchConditionsExists) {
       const hasConditions = await topPage.recentSearchConditionsSection.hasAnyConditions();
       expect(hasConditions).toBe(true);
-      
+
       const titleText = await topPage.recentSearchConditionsSection.getSectionTitleText();
       expect(titleText).toContain('最近検索した条件');
     }
-    
+
     // Scroll to reason section and get counts
     await topPage.reasonSection.scrollToSection();
     const classroomCount = await topPage.reasonSection.getClassroomCount();
     expect(classroomCount).toMatch(/\d+/);
-    
+
     const reviewCount = await topPage.reasonSection.getReviewCount();
     expect(reviewCount).toMatch(/\d+/);
   });

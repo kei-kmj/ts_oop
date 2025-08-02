@@ -12,16 +12,19 @@ export class JukuCourseSection {
   constructor(page: Page) {
     this.page = page;
     // Find the specific course section by looking for the one with course content
-    this.container = page.locator('.bjc-juku-inner-tab-wrap').filter({ 
-      has: page.locator('.bjc-posts-course')
-    }).first();
-    
+    this.container = page
+      .locator('.bjc-juku-inner-tab-wrap')
+      .filter({
+        has: page.locator('.bjc-posts-course'),
+      })
+      .first();
+
     // Create a juku-specific tab component that works within this container
     this.tabComponent = new JukuTabComponent(page, this.container);
-    
+
     // Use JukuCourseCard component for juku pages
     this.courseCard = new JukuCourseCard(page);
-    
+
     // View all link at the bottom
     this.viewAllLink = this.container.locator('.bjc-juku-link');
   }
@@ -88,8 +91,8 @@ export class JukuCourseSection {
   async clickCourseCardByTitle(titleText: string): Promise<void> {
     const activeContent = this.container.locator('.js-tab__content.is-active');
     const cards = await this.getCourseCards();
-    const targetCard = cards.find(card => card.title.includes(titleText));
-    
+    const targetCard = cards.find((card) => card.title.includes(titleText));
+
     if (targetCard) {
       const card = activeContent.locator(`.bjc-post-course[href="${targetCard.href}"]`);
       await card.click();
@@ -102,11 +105,11 @@ export class JukuCourseSection {
   }
 
   async getViewAllLinkText(): Promise<string> {
-    return await this.viewAllLink.textContent() || '';
+    return (await this.viewAllLink.textContent()) || '';
   }
 
   async getViewAllLinkHref(): Promise<string> {
-    return await this.viewAllLink.getAttribute('href') || '';
+    return (await this.viewAllLink.getAttribute('href')) || '';
   }
 
   async isViewAllLinkVisible(): Promise<boolean> {
@@ -120,24 +123,26 @@ export class JukuCourseSection {
     return await this.getCourseCards();
   }
 
-  async getAllTabsCourseData(): Promise<Array<{
-    tabName: string;
-    courses: JukuCourseCardData[];
-    courseCount: number;
-  }>> {
+  async getAllTabsCourseData(): Promise<
+    Array<{
+      tabName: string;
+      courses: JukuCourseCardData[];
+      courseCount: number;
+    }>
+  > {
     const tabs = await this.getAvailableTabs();
     const allTabsData = [];
 
     for (const tab of tabs) {
       await this.tabComponent.clickTabByText(tab);
       await this.tabComponent.waitForTabChange(tab);
-      
+
       const courses = await this.getCourseCards();
-      
+
       allTabsData.push({
         tabName: tab,
         courses,
-        courseCount: courses.length
+        courseCount: courses.length,
       });
     }
 
@@ -160,14 +165,12 @@ export class JukuCourseSection {
   async getCoursesBySubject(subject: string): Promise<JukuCourseCardData[]> {
     const allTabs = await this.getAllTabsCourseData();
     const coursesBySubject: JukuCourseCardData[] = [];
-    
+
     for (const tabData of allTabs) {
-      const subjectCourses = tabData.courses.filter(course => 
-        course.subjects.includes(subject)
-      );
+      const subjectCourses = tabData.courses.filter((course) => course.subjects.includes(subject));
       coursesBySubject.push(...subjectCourses);
     }
-    
+
     return coursesBySubject;
   }
 
@@ -175,28 +178,28 @@ export class JukuCourseSection {
   async getExamPreparationCourses(): Promise<JukuCourseCardData[]> {
     const allTabs = await this.getAllTabsCourseData();
     const examCourses: JukuCourseCardData[] = [];
-    
+
     for (const tabData of allTabs) {
-      const examPrep = tabData.courses.filter(course => 
-        course.title.includes('受験対策') || course.title.includes('対策コース')
+      const examPrep = tabData.courses.filter(
+        (course) => course.title.includes('受験対策') || course.title.includes('対策コース'),
       );
       examCourses.push(...examPrep);
     }
-    
+
     return examCourses;
   }
 
   async getRegularCourses(): Promise<JukuCourseCardData[]> {
     const allTabs = await this.getAllTabsCourseData();
     const regularCourses: JukuCourseCardData[] = [];
-    
+
     for (const tabData of allTabs) {
-      const regular = tabData.courses.filter(course => 
-        course.title.includes('向けコース') && !course.title.includes('受験対策')
+      const regular = tabData.courses.filter(
+        (course) => course.title.includes('向けコース') && !course.title.includes('受験対策'),
       );
       regularCourses.push(...regular);
     }
-    
+
     return regularCourses;
   }
 
@@ -215,11 +218,11 @@ export class JukuCourseSection {
     let examPreparationCount = 0;
     let regularCourseCount = 0;
     const subjectCoverage: Record<string, number> = {};
-    
+
     for (const tabData of allTabs) {
       totalCourses += tabData.courseCount;
       byTab[tabData.tabName] = tabData.courseCount;
-      
+
       for (const course of tabData.courses) {
         // Count exam preparation vs regular courses
         if (course.title.includes('受験対策') || course.title.includes('対策コース')) {
@@ -227,27 +230,27 @@ export class JukuCourseSection {
         } else if (course.title.includes('向けコース')) {
           regularCourseCount++;
         }
-        
+
         // Count subjects
         for (const subject of course.subjects) {
           subjectCoverage[subject] = (subjectCoverage[subject] || 0) + 1;
         }
       }
     }
-    
+
     // Get most common subjects (sorted by frequency)
     const mostCommonSubjects = Object.entries(subjectCoverage)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .map(([subject]) => subject);
-    
+
     return {
       totalCourses,
       byTab,
       examPreparationCount,
       regularCourseCount,
       subjectCoverage,
-      mostCommonSubjects
+      mostCommonSubjects,
     };
   }
 
@@ -255,7 +258,7 @@ export class JukuCourseSection {
   async getActiveTabHeading(): Promise<string> {
     const activeContent = this.container.locator('.js-tab__content.is-active');
     const heading = activeContent.locator('.bjc-juku-heading-4');
-    return await heading.textContent() || '';
+    return (await heading.textContent()) || '';
   }
 
   async waitForSectionToLoad(): Promise<void> {

@@ -6,7 +6,6 @@ test.describe('Juku Experience Section Tests', () => {
   const brandId = process.env.BRAND_ID || '21'; // Default to individual classroom Torai
 
   test.beforeEach(async ({ page }) => {
-    
     experienceSection = new JukuExperienceSection(page);
     await page.goto(`https://bestjuku.com/juku/${brandId}/`);
     await experienceSection.waitForSectionToLoad();
@@ -33,9 +32,8 @@ test.describe('Juku Experience Section Tests', () => {
 
   test('各タブの体験記カードをテストする', async () => {
     const allTabsData = await experienceSection.getAllTabsExperienceData();
-    
+
     for (const tabData of allTabsData) {
-      
       if (tabData.cards.length > 0) {
         const firstCard = tabData.cards[0];
       }
@@ -46,7 +44,6 @@ test.describe('Juku Experience Section Tests', () => {
     const hasHighSchool = await experienceSection.hasExperiencesForGrade('高校受験');
     const hasJuniorHigh = await experienceSection.hasExperiencesForGrade('中学受験');
 
-
     // At least one grade level should have experiences
     expect(hasUniversity || hasHighSchool || hasJuniorHigh).toBe(true);
   });
@@ -55,14 +52,13 @@ test.describe('Juku Experience Section Tests', () => {
     // Test view all link properties
     const viewAllText = await experienceSection.getViewAllLinkText();
     const viewAllHref = await experienceSection.getViewAllLinkHref();
-    
-    
+
     expect(viewAllText).toContain('合格体験記');
     expect(viewAllHref).toContain(`/juku/${brandId}/experience/`);
-    
+
     // Click the view all link
     await experienceSection.clickViewAllLink();
-    
+
     // Verify navigation to experience list page
     await experienceSection.page.waitForURL(new RegExp(`/juku/${brandId}/experience/`));
     const currentUrl = experienceSection.page.url();
@@ -71,15 +67,14 @@ test.describe('Juku Experience Section Tests', () => {
 
   test('体験記のサマリーと統計をテストする', async () => {
     const summary = await experienceSection.getExperienceSummary();
-    
-    
+
     expect(summary.totalExperiences).toBeGreaterThan(0);
     expect(summary.pickupCount).toBeGreaterThanOrEqual(0);
     expect(summary.averageStartingDeviation).toBeGreaterThanOrEqual(0);
-    
+
     // Test filtering by deviation range
     const midRangeExperiences = await experienceSection.getExperiencesByDeviationRange(45, 65);
-    
+
     // Test filtering by recent year
     const currentYear = new Date().getFullYear();
     const recentExperiences = await experienceSection.getExperiencesByYear(currentYear);
@@ -88,16 +83,16 @@ test.describe('Juku Experience Section Tests', () => {
   test('体験記カードのクリックをテストする', async () => {
     // First, get experience cards from the active tab
     const experienceCards = await experienceSection.getExperienceCards();
-    
+
     if (experienceCards.length > 0) {
       const firstCard = experienceCards[0];
-      
+
       // Click the first experience card
       await experienceSection.clickExperienceCard(0);
-      
+
       // Wait for navigation to experience detail page
       await experienceSection.page.waitForLoadState('networkidle');
-      
+
       // Verify we navigated to the experience detail page
       const currentUrl = experienceSection.page.url();
       expect(currentUrl).toContain('/shingaku/experience/');
@@ -107,14 +102,14 @@ test.describe('Juku Experience Section Tests', () => {
 
   test('タブの切り替えとカードの取得をテストする', async () => {
     const tabs = await experienceSection.getAvailableTabs();
-    
+
     for (const tab of tabs) {
       const cards = await experienceSection.switchTabAndGetCards(tab);
-      
+
       if (cards.length > 0) {
         const firstCard = cards[0];
       }
-      
+
       // Verify the tab is now active
       const isActive = await experienceSection.isTabActive(tab);
       expect(isActive).toBe(true);

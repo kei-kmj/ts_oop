@@ -30,16 +30,16 @@ export class ReviewNavigation {
   }
 
   async getActiveTabText(): Promise<string> {
-    return await this.activeTab.textContent() || '';
+    return (await this.activeTab.textContent()) || '';
   }
 
   async isTabActive(tabName: 'category' | 'respondent' | 'experience'): Promise<boolean> {
     const tabMap = {
       category: 'カテゴリから探す',
       respondent: '回答者から探す',
-      experience: '合格体験記'
+      experience: '合格体験記',
     };
-    
+
     const activeText = await this.getActiveTabText();
     return activeText.includes(tabMap[tabName]);
   }
@@ -51,14 +51,14 @@ export class ReviewNavigation {
   async getAllTabTexts(): Promise<string[]> {
     const tabs = await this.navContainer.locator('li').all();
     const texts: string[] = [];
-    
+
     for (const tab of tabs) {
       const text = await tab.textContent();
       if (text) {
         texts.push(text.trim());
       }
     }
-    
+
     return texts;
   }
 

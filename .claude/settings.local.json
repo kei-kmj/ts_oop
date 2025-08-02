@@ -5,7 +5,8 @@
       "Bash(npm test:*)",
       "Bash(npm run:*)",
       "Bash(rg:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

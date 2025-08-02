@@ -14,7 +14,7 @@ test.describe('Juku Tab Navigation', () => {
   test('すべてのナビゲーションタブが表示される', async () => {
     const isVisible = await jukuPage.tabNavigation.isTabVisible();
     expect(isVisible).toBeTruthy();
-    
+
     const tabs = await jukuPage.tabNavigation.getAllTabs();
     expect(tabs).toContain('塾トップ');
     expect(tabs).toContain('詳細レポ');
@@ -42,10 +42,10 @@ test.describe('Juku Tab Navigation', () => {
     // First go to course page
     await jukuPage.tabNavigation.clickCourse();
     await expect(page).toHaveURL(new RegExp(`/juku/${jukuId}/course/`));
-    
+
     // Recreate the page object to get fresh navigation state
     jukuPage = new JukuPage(page);
-    
+
     // Then navigate back to top
     try {
       await jukuPage.tabNavigation.clickJukuTop();
@@ -59,7 +59,7 @@ test.describe('Juku Tab Navigation', () => {
     // Check initial active tab (should be 塾トップ)
     const initialActiveTab = await jukuPage.tabNavigation.getActiveTab();
     expect(initialActiveTab).toBe('塾トップ');
-    
+
     // Navigate to course and check active tab
     await jukuPage.tabNavigation.clickCourse();
     await page.waitForLoadState('networkidle');
@@ -70,20 +70,20 @@ test.describe('Juku Tab Navigation', () => {
   test('正しいhref属性を持つ', async ({ page }) => {
     // Wait for navigation to be visible
     await page.waitForSelector('.bjc-juku-tab', { state: 'visible' });
-    
+
     // When on the top page, '塾トップ' won't have a link (it's the active page)
     const topLink = await jukuPage.tabNavigation.getTabLink('塾トップ');
     expect(topLink).toBeNull(); // Active page doesn't have a link
-    
+
     const reportLink = await jukuPage.tabNavigation.getTabLink('詳細レポ');
     expect(reportLink).toBe(`/juku/${jukuId}/report/`);
-    
+
     const courseLink = await jukuPage.tabNavigation.getTabLink('コース');
     expect(courseLink).toBe(`/juku/${jukuId}/course/`);
-    
+
     const classLink = await jukuPage.tabNavigation.getTabLink('教室一覧');
     expect(classLink).toBe(`/juku/${jukuId}/class/`);
-    
+
     const reviewLink = await jukuPage.tabNavigation.getTabLink('口コミ');
     expect(reviewLink).toBe(`/juku/${jukuId}/review/`);
   });
@@ -92,12 +92,12 @@ test.describe('Juku Tab Navigation', () => {
     // Navigate to course page first
     await jukuPage.tabNavigation.clickCourse();
     await page.waitForLoadState('networkidle');
-    
+
     try {
       // Now '塾トップ' should have a link since it's not active
       const topLink = await jukuPage.tabNavigation.getTabLink('塾トップ');
       expect(topLink).toBe(`/juku/${jukuId}/`);
-      
+
       // And 'コース' should not have a link since it's now active
       const courseLink = await jukuPage.tabNavigation.getTabLink('コース');
       expect(courseLink).toBeNull();
@@ -110,23 +110,23 @@ test.describe('Juku Tab Navigation', () => {
     // On the top page, '塾トップ' should not be clickable
     const isTopClickable = await jukuPage.tabNavigation.isTabClickable('塾トップ');
     expect(isTopClickable).toBe(false);
-    
+
     // Other tabs should be clickable
     const isReportClickable = await jukuPage.tabNavigation.isTabClickable('詳細レポ');
     expect(isReportClickable).toBe(true);
-    
+
     const isCourseClickable = await jukuPage.tabNavigation.isTabClickable('コース');
     expect(isCourseClickable).toBe(true);
-    
+
     // Navigate to course page
     await jukuPage.tabNavigation.clickCourse();
     await page.waitForLoadState('networkidle');
-    
+
     try {
       // Now '塾トップ' should be clickable
       const isTopClickableAfterNav = await jukuPage.tabNavigation.isTabClickable('塾トップ');
       expect(isTopClickableAfterNav).toBe(true);
-      
+
       // And 'コース' should not be clickable
       const isCourseClickableAfterNav = await jukuPage.tabNavigation.isTabClickable('コース');
       expect(isCourseClickableAfterNav).toBe(false);

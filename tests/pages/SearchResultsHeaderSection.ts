@@ -7,10 +7,10 @@ export class SearchResultsHeaderSection {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Header container
     this.headerContainer = page.locator('.bjc-search-header');
-    
+
     // Header title - more direct approach
     this.headerTitle = page.locator('.bjc-search-header-title');
   }
@@ -18,8 +18,8 @@ export class SearchResultsHeaderSection {
   // Search result article methods
   getSearchResultArticle(institutionName?: string): Locator {
     if (institutionName) {
-      return this.page.locator('.bjc-search-result-article').filter({ 
-        has: this.page.getByRole('link', { name: institutionName })
+      return this.page.locator('.bjc-search-result-article').filter({
+        has: this.page.getByRole('link', { name: institutionName }),
       });
     }
     return this.page.locator('.bjc-search-result-article').first();
@@ -40,7 +40,7 @@ export class SearchResultsHeaderSection {
   async getInstitutionTitle(institutionName?: string): Promise<string> {
     const article = this.getSearchResultArticle(institutionName);
     const titleLink = article.locator('.bjc-search-result-article--header-title');
-    const text = await titleLink.textContent() || '';
+    const text = (await titleLink.textContent()) || '';
     return text.trim();
   }
 
@@ -68,21 +68,21 @@ export class SearchResultsHeaderSection {
   }> {
     const article = this.getSearchResultArticle(institutionName);
     const evaluation = article.locator('.bjc-juku-header-evaluation');
-    
-    const ratingText = await evaluation.locator('.bjc-juku-header-evaluation-average_number').textContent() || '0';
-    const reviewCountText = await evaluation.locator('.bjc-juku-header-evaluation-number a').textContent() || '(0)';
-    
+
+    const ratingText = (await evaluation.locator('.bjc-juku-header-evaluation-average_number').textContent()) || '0';
+    const reviewCountText = (await evaluation.locator('.bjc-juku-header-evaluation-number a').textContent()) || '(0)';
+
     const rating = parseFloat(ratingText);
     const reviewCount = parseInt(reviewCountText.match(/\((\d+)\)$/)?.[1] || '0');
-    
+
     // Count filled stars
     const starElements = evaluation.locator('.bjc-evaluation-star:not(.inert)');
     const stars = await starElements.count();
-    
+
     return {
       rating,
       reviewCount,
-      stars
+      stars,
     };
   }
 
@@ -94,32 +94,32 @@ export class SearchResultsHeaderSection {
   }> {
     const article = this.getSearchResultArticle(institutionName);
     const tagSection = article.locator('.bjc-juku-header-tag');
-    
+
     const targetGrades = await this.getTagsByHeading(tagSection, '対象学年');
     const teachingMethods = await this.getTagsByHeading(tagSection, '授業形式');
     const purposes = await this.getTagsByHeading(tagSection, '目的');
-    
+
     return {
       targetGrades,
       teachingMethods,
-      purposes
+      purposes,
     };
   }
 
   private async getTagsByHeading(tagSection: Locator, heading: string): Promise<string[]> {
-    const row = tagSection.locator('.bjc-juku-header-tag-row').filter({ 
-      has: this.page.locator('.bjc-juku-header-tag-heading', { hasText: heading })
+    const row = tagSection.locator('.bjc-juku-header-tag-row').filter({
+      has: this.page.locator('.bjc-juku-header-tag-heading', { hasText: heading }),
     });
-    
+
     const items = row.locator('.bjc-juku-header-tag-list li');
     const count = await items.count();
     const tags = [];
-    
+
     for (let i = 0; i < count; i++) {
       const text = await items.nth(i).textContent();
       if (text) tags.push(text.trim());
     }
-    
+
     return tags;
   }
 
@@ -127,7 +127,7 @@ export class SearchResultsHeaderSection {
   async getTagline(jukuName?: string): Promise<string> {
     const article = this.getSearchResultArticle(jukuName);
     const tagline = article.locator('.bjc-search-result-article--header-tagline');
-    return await tagline.textContent() || '';
+    return (await tagline.textContent()) || '';
   }
 
   // Get recommendation points
@@ -136,12 +136,12 @@ export class SearchResultsHeaderSection {
     const pointsList = article.locator('.bjc-juku-point-list li');
     const count = await pointsList.count();
     const points = [];
-    
+
     for (let i = 0; i < count; i++) {
       const text = await pointsList.nth(i).textContent();
       if (text) points.push(text.trim());
     }
-    
+
     return points;
   }
 
@@ -153,23 +153,23 @@ export class SearchResultsHeaderSection {
   }> {
     const article = this.getSearchResultArticle(jukuName);
     const linksSection = article.locator('.bjc-search-result-article--links');
-    
+
     const interviewLink = linksSection.locator('.bjc-search-result-article--link-icon.interview a');
     const experienceLink = linksSection.locator('.bjc-search-result-article--link-icon.experience a');
     const reviewLink = linksSection.locator('.bjc-search-result-article--link-icon.kuchikomi a');
-    
-    const interviewText = await interviewLink.textContent() || '';
-    const experienceText = await experienceLink.textContent() || '';
-    const reviewText = await reviewLink.textContent() || '';
-    
+
+    const interviewText = (await interviewLink.textContent()) || '';
+    const experienceText = (await experienceLink.textContent()) || '';
+    const reviewText = (await reviewLink.textContent()) || '';
+
     const interviewCount = parseInt(interviewText.match(/\((\d+)\)$/)?.[1] || '0');
     const experienceCount = parseInt(experienceText.match(/\((\d+)\)$/)?.[1] || '0');
     const reviewCount = parseInt(reviewText.match(/\((\d+)\)$/)?.[1] || '0');
-    
+
     return {
       interviewCount,
       experienceCount,
-      reviewCount
+      reviewCount,
     };
   }
 
@@ -190,83 +190,89 @@ export class SearchResultsHeaderSection {
   }
 
   // Get school list data
-  async getSchoolListData(jukuName?: string, city?: string): Promise<Array<{
-    name: string;
-    href: string;
-    nearestStation: string;
-    classroomId: string;
-  }>> {
+  async getSchoolListData(
+    jukuName?: string,
+    city?: string,
+  ): Promise<
+    Array<{
+      name: string;
+      href: string;
+      nearestStation: string;
+      classroomId: string;
+    }>
+  > {
     // First try to get data from search result articles (institution-based approach)
     if (jukuName) {
       const article = this.getSearchResultArticle(jukuName);
       const schoolSection = article.locator('.bjc-search-result-article--school_list');
-      
+
       // Check if city matches expected city in heading
       if (city) {
         const heading = schoolSection.locator('.bjc-search-result-article--school_list-heading');
-        const headingText = await heading.textContent() || '';
+        const headingText = (await heading.textContent()) || '';
         if (!headingText.includes(city)) {
           return [];
         }
       }
-      
+
       const schoolCards = schoolSection.locator('.bjc-search-result-article--school_list-card');
       const count = await schoolCards.count();
       const schools = [];
-      
+
       for (let i = 0; i < count; i++) {
         const card = schoolCards.nth(i);
         const nameLink = card.locator('.bjc-search-result-article--school_list-card-header-heading a');
-        const name = await nameLink.textContent() || '';
-        const href = await nameLink.getAttribute('href') || '';
-        const station = await card.locator('.bjc-search-result-article--school_list-address:not(.is-heading)').textContent() || '';
-        
+        const name = (await nameLink.textContent()) || '';
+        const href = (await nameLink.getAttribute('href')) || '';
+        const station =
+          (await card.locator('.bjc-search-result-article--school_list-address:not(.is-heading)').textContent()) || '';
+
         // Extract classroom ID from href
         const classroomIdMatch = href.match(/\/class\/(\d+)\//);
         const classroomId = classroomIdMatch ? classroomIdMatch[1] : '';
-        
+
         schools.push({
           name: name.trim(),
           href,
           nearestStation: station.trim(),
-          classroomId
+          classroomId,
         });
       }
-      
+
       if (schools.length > 0) {
         return schools;
       }
     }
-    
+
     // Fallback approach: get data from search results paragraphs
     // Based on the snapshot, school data is in paragraph elements with specific structure
     const schools = [];
-    
+
     try {
       // Look for links that contain "/juku/" and "/class/" patterns in main content
       const mainContent = this.page.locator('main');
       const classroomLinks = mainContent.locator('a[href*="/juku/"][href*="/class/"]');
       const count = await classroomLinks.count();
-      
+
       // Limit to prevent infinite loops
       const maxResults = Math.min(count, 50);
-      
+
       for (let i = 0; i < maxResults; i++) {
         try {
           const link = classroomLinks.nth(i);
-          const href = await link.getAttribute('href') || '';
-          const name = await link.textContent() || '';
-          
+          const href = (await link.getAttribute('href')) || '';
+          const name = (await link.textContent()) || '';
+
           // Extract classroom ID from href (pattern: /juku/16/class/92148/)
           const classroomIdMatch = href.match(/\/class\/(\d+)\//);
           if (classroomIdMatch && name.trim()) {
             const classroomId = classroomIdMatch[1];
-            
+
             schools.push({
               name: name.trim(),
               href,
               nearestStation: '', // We'll fill this in later if needed
-              classroomId
+              classroomId,
             });
           }
         } catch (e) {
@@ -278,19 +284,22 @@ export class SearchResultsHeaderSection {
       // If the fallback fails completely, return empty array
       console.warn('Failed to get school list data:', e);
     }
-    
+
     return schools;
   }
 
   // Get specific school data
-  async getSchoolData(schoolName: string, jukuName?: string): Promise<{
+  async getSchoolData(
+    schoolName: string,
+    jukuName?: string,
+  ): Promise<{
     name: string;
     href: string;
     nearestStation: string;
     classroomId: string;
   } | null> {
     const schools = await this.getSchoolListData(jukuName);
-    return schools.find(school => school.name.includes(schoolName)) || null;
+    return schools.find((school) => school.name.includes(schoolName)) || null;
   }
 
   // Click school actions
@@ -299,31 +308,31 @@ export class SearchResultsHeaderSection {
     if (jukuName) {
       const article = this.getSearchResultArticle(jukuName);
       const schoolCard = article.locator('.bjc-search-result-article--school_list-card').filter({
-        has: this.page.getByRole('link', { name: schoolName })
+        has: this.page.getByRole('link', { name: schoolName }),
       });
-      
+
       const detailsButton = schoolCard.locator('.bjc-button.free-primary a');
-      if (await detailsButton.count() > 0) {
+      if ((await detailsButton.count()) > 0) {
         await detailsButton.click();
         return;
       }
     }
-    
+
     // Fallback: look for "詳細を見る" link near the school name in the main content
     const schoolLink = this.page.locator('main').getByRole('link', { name: schoolName });
-    if (await schoolLink.count() > 0) {
+    if ((await schoolLink.count()) > 0) {
       // Find the details link near this school (look for "詳細を見る" text)
       const parentSection = schoolLink.locator('xpath=ancestor::*[self::paragraph or self::section or self::div][1]');
-      const detailsLink = parentSection.getByRole('link', { name: '詳細を見る' }).or(
-        parentSection.locator('a[href*="/class/"][href$="/"]')
-      );
-      
-      if (await detailsLink.count() > 0) {
+      const detailsLink = parentSection
+        .getByRole('link', { name: '詳細を見る' })
+        .or(parentSection.locator('a[href*="/class/"][href$="/"]'));
+
+      if ((await detailsLink.count()) > 0) {
         await detailsLink.first().click();
         return;
       }
     }
-    
+
     // Final fallback: click the school link itself (should navigate to details)
     await schoolLink.first().click();
   }
@@ -333,40 +342,40 @@ export class SearchResultsHeaderSection {
     if (jukuName) {
       const article = this.getSearchResultArticle(jukuName);
       const schoolCard = article.locator('.bjc-search-result-article--school_list-card').filter({
-        has: this.page.getByRole('link', { name: schoolName })
+        has: this.page.getByRole('link', { name: schoolName }),
       });
-      
+
       const pricingButton = schoolCard.locator('.bjc-button.free-secondary a');
-      if (await pricingButton.count() > 0) {
+      if ((await pricingButton.count()) > 0) {
         await pricingButton.click();
         return;
       }
     }
-    
+
     // Fallback: look for "料金を知りたい" link near the school name
     const schoolLink = this.page.locator('main').getByRole('link', { name: schoolName });
-    if (await schoolLink.count() > 0) {
+    if ((await schoolLink.count()) > 0) {
       // Find the pricing link near this school (look for "料金を知りたい" text)
       const parentSection = schoolLink.locator('xpath=ancestor::*[self::paragraph or self::section or self::div][1]');
-      const pricingLink = parentSection.getByRole('link', { name: '料金を知りたい' }).or(
-        parentSection.locator('a[href*="/class/"][href*="/request/"]')
-      );
-      
-      if (await pricingLink.count() > 0) {
+      const pricingLink = parentSection
+        .getByRole('link', { name: '料金を知りたい' })
+        .or(parentSection.locator('a[href*="/class/"][href*="/request/"]'));
+
+      if ((await pricingLink.count()) > 0) {
         await pricingLink.first().click();
         return;
       }
     }
-    
+
     throw new Error(`Could not find pricing link for school: ${schoolName}`);
   }
 
   async clickSchoolMap(schoolName: string, jukuName?: string): Promise<void> {
     const article = this.getSearchResultArticle(jukuName);
     const schoolCard = article.locator('.bjc-search-result-article--school_list-card').filter({
-      has: this.page.getByRole('link', { name: schoolName })
+      has: this.page.getByRole('link', { name: schoolName }),
     });
-    
+
     await schoolCard.locator('.bjc-juku-map-link').click();
   }
 
@@ -378,7 +387,7 @@ export class SearchResultsHeaderSection {
 
   // Get the full header title text
   async getHeaderTitleText(): Promise<string> {
-    const text = await this.headerTitle.textContent() || '';
+    const text = (await this.headerTitle.textContent()) || '';
     return text.trim();
   }
 
@@ -422,7 +431,7 @@ export class SearchResultsHeaderSection {
       city,
       grade,
       institutionType,
-      fullTitle
+      fullTitle,
     };
   }
 
@@ -474,7 +483,11 @@ export class SearchResultsHeaderSection {
   }
 
   // Verify title matches expected parameters
-  async verifyTitleMatches(expectedCity: string, expectedGrade: string, expectedType: string = '学習塾・予備校'): Promise<boolean> {
+  async verifyTitleMatches(
+    expectedCity: string,
+    expectedGrade: string,
+    expectedType: string = '学習塾・予備校',
+  ): Promise<boolean> {
     const expectedTitle = await this.getExpectedTitleForParams(expectedCity, expectedGrade, expectedType);
     const actualTitle = await this.getHeaderTitleText();
     return actualTitle === expectedTitle;
@@ -482,19 +495,19 @@ export class SearchResultsHeaderSection {
 
   // Extract all grade patterns (handles various grade formats)
   async extractGradePattern(): Promise<{
-    isAll: boolean;           // true if "すべて" or similar
-    gradeLevel: string;       // e.g., "高校", "中学", "小学"
-    specificGrade?: string;   // e.g., "1", "2", "3"
-    originalText: string;     // original grade text
+    isAll: boolean; // true if "すべて" or similar
+    gradeLevel: string; // e.g., "高校", "中学", "小学"
+    specificGrade?: string; // e.g., "1", "2", "3"
+    originalText: string; // original grade text
   }> {
     const gradeText = await this.getGradeInfo();
-    
+
     // Check for explicit "すべて" or "全て" keywords
     let isAll = gradeText.includes('すべて') || gradeText.includes('全て');
-    
+
     let gradeLevel = '';
     let specificGrade = '';
-    
+
     if (gradeText.includes('高')) {
       gradeLevel = '高校';
       const match = gradeText.match(/高(\d)/);
@@ -532,7 +545,7 @@ export class SearchResultsHeaderSection {
       isAll,
       gradeLevel,
       specificGrade,
-      originalText: gradeText
+      originalText: gradeText,
     };
   }
 }

@@ -11,7 +11,7 @@ export class ExperienceDetailPage extends Base {
   }
 
   async getAttendedJukuHeading(): Promise<string> {
-    const text = await this.page.getByRole('heading', { name: '受験時に通っていた塾' }).textContent() || '';
+    const text = (await this.page.getByRole('heading', { name: '受験時に通っていた塾' }).textContent()) || '';
     return text.trim();
   }
 
@@ -28,7 +28,7 @@ export class ExperienceDetailPage extends Base {
   }
 
   async getJukuName(index: number): Promise<string> {
-    return await this.getJukuSummaryCard(index).locator('.juku-name').textContent() || '';
+    return (await this.getJukuSummaryCard(index).locator('.juku-name').textContent()) || '';
   }
 
   async getJukuLogoSrc(index: number): Promise<string | null> {
@@ -68,13 +68,13 @@ export class ExperienceDetailPage extends Base {
   }
 
   async getInterviewCount(index: number): Promise<string> {
-    const text = await this.getJukuSummaryCard(index).locator('a[href*="/passed-interview/"]').textContent() || '';
+    const text = (await this.getJukuSummaryCard(index).locator('a[href*="/passed-interview/"]').textContent()) || '';
     const match = text.match(/（(\d+)）/);
     return match ? match[1] : '';
   }
 
   async getReviewCount(index: number): Promise<string> {
-    const text = await this.getJukuSummaryCard(index).locator('a[href*="/review/"]').textContent() || '';
+    const text = (await this.getJukuSummaryCard(index).locator('a[href*="/review/"]').textContent()) || '';
     const match = text.match(/（(\d+)）/);
     return match ? match[1] : '';
   }

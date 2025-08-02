@@ -29,19 +29,20 @@ export class JukuReviewPage extends Base {
   }
 
   async goto(jukuId: string, category?: string): Promise<void> {
-    const path = category 
-      ? `/juku/${jukuId}/review/?category=${category}`
-      : `/juku/${jukuId}/review/`;
+    const path = category ? `/juku/${jukuId}/review/?category=${category}` : `/juku/${jukuId}/review/`;
     await super.goto(path);
   }
 
   async waitForPageToLoad(): Promise<void> {
     await this.page.waitForLoadState('domcontentloaded');
     // Wait for review cards to be loaded
-    await this.reviewCards.first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {
-      // If no review cards, wait for navigation to be visible
-      return this.reviewNavigation.navContainer.waitFor({ state: 'visible', timeout: 5000 });
-    });
+    await this.reviewCards
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 })
+      .catch(() => {
+        // If no review cards, wait for navigation to be visible
+        return this.reviewNavigation.navContainer.waitFor({ state: 'visible', timeout: 5000 });
+      });
   }
 
   async getReviewCount(): Promise<number> {
@@ -69,15 +70,15 @@ export class JukuReviewPage extends Base {
     content: string;
   }> {
     const card = this.reviewCards.nth(index);
-    
+
     const href = await card.getAttribute('href');
-    const heading = await card.locator('.bjc-review-article--header-heading').textContent() || '';
-    const title = await card.locator('.bjc-review-article--header-title').textContent() || '';
-    const meta = await card.locator('.bjc-review-article--meta-txt').textContent() || '';
-    const ratingText = await card.locator('.bjc-evaluation-average_number').textContent() || '';
+    const heading = (await card.locator('.bjc-review-article--header-heading').textContent()) || '';
+    const title = (await card.locator('.bjc-review-article--header-title').textContent()) || '';
+    const meta = (await card.locator('.bjc-review-article--meta-txt').textContent()) || '';
+    const ratingText = (await card.locator('.bjc-evaluation-average_number').textContent()) || '';
     const rating = parseInt(ratingText, 10) || 0;
-    const date = await card.locator('.bjc-evaluation-period').textContent() || '';
-    const content = await card.locator('.bjc-review-article--content').textContent() || '';
+    const date = (await card.locator('.bjc-evaluation-period').textContent()) || '';
+    const content = (await card.locator('.bjc-review-article--content').textContent()) || '';
 
     return {
       href,
@@ -87,7 +88,7 @@ export class JukuReviewPage extends Base {
       rating,
       ratingText: ratingText.trim(),
       date: date.trim(),
-      content: content.trim()
+      content: content.trim(),
     };
   }
 
@@ -99,29 +100,31 @@ export class JukuReviewPage extends Base {
     respondent?: string;
   }> {
     const review = this.reviewItems.nth(index);
-    
-    const title = await review.locator('.bjc-review-title').textContent() || '';
-    const rating = await review.locator('.bjc-review-rating').textContent() || '';
-    const date = await review.locator('.bjc-review-date').textContent() || '';
-    const content = await review.locator('.bjc-review-content').textContent() || '';
-    const respondent = await review.locator('.bjc-review-respondent').textContent() || '';
+
+    const title = (await review.locator('.bjc-review-title').textContent()) || '';
+    const rating = (await review.locator('.bjc-review-rating').textContent()) || '';
+    const date = (await review.locator('.bjc-review-date').textContent()) || '';
+    const content = (await review.locator('.bjc-review-content').textContent()) || '';
+    const respondent = (await review.locator('.bjc-review-respondent').textContent()) || '';
 
     return {
       title: title.trim(),
       rating: rating.trim(),
       date: date.trim(),
       content: content.trim(),
-      respondent: respondent.trim() || undefined
+      respondent: respondent.trim() || undefined,
     };
   }
 
-  async getAllReviewsData(): Promise<Array<{
-    title: string;
-    rating: string;
-    date: string;
-    content: string;
-    respondent?: string;
-  }>> {
+  async getAllReviewsData(): Promise<
+    Array<{
+      title: string;
+      rating: string;
+      date: string;
+      content: string;
+      respondent?: string;
+    }>
+  > {
     const reviews = await this.getReviewItems();
     const reviewsData = [];
 
@@ -133,16 +136,18 @@ export class JukuReviewPage extends Base {
     return reviewsData;
   }
 
-  async getAllReviewCardsData(): Promise<Array<{
-    href: string | null;
-    heading: string;
-    title: string;
-    meta: string;
-    rating: number;
-    ratingText: string;
-    date: string;
-    content: string;
-  }>> {
+  async getAllReviewCardsData(): Promise<
+    Array<{
+      href: string | null;
+      heading: string;
+      title: string;
+      meta: string;
+      rating: number;
+      ratingText: string;
+      date: string;
+      content: string;
+    }>
+  > {
     const cards = await this.getReviewCards();
     const cardsData = [];
 
@@ -197,10 +202,7 @@ export class JukuReviewPage extends Base {
 
   async searchReviewsByKeyword(keyword: string): Promise<number> {
     const reviews = await this.getAllReviewsData();
-    return reviews.filter(review => 
-      review.content.includes(keyword) || 
-      review.title.includes(keyword)
-    ).length;
+    return reviews.filter((review) => review.content.includes(keyword) || review.title.includes(keyword)).length;
   }
 
   async openFilterModal(): Promise<void> {

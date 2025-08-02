@@ -21,7 +21,7 @@ export class ExperienceSection {
   }
 
   async getTitle(): Promise<string> {
-    return await this.title.textContent() || '';
+    return (await this.title.textContent()) || '';
   }
 
   async isVisible(): Promise<boolean> {
@@ -89,7 +89,7 @@ export class ExperienceSection {
   async clickExperienceCardBySchoolName(schoolName: string): Promise<void> {
     const activeContent = await this.tabComponent.getActiveTabContent();
     const card = activeContent.locator('.bjp-home-experience__content').filter({
-      has: this.page.locator('.title .passed', { hasText: schoolName })
+      has: this.page.locator('.title .passed', { hasText: schoolName }),
     });
     await card.click();
   }
@@ -109,13 +109,13 @@ export class ExperienceSection {
   async getViewAllLinkText(): Promise<string> {
     const activeContent = await this.tabComponent.getActiveTabContent();
     const viewAllLink = activeContent.locator('.pjc-link-text').first();
-    return await viewAllLink.textContent() || '';
+    return (await viewAllLink.textContent()) || '';
   }
 
   async getViewAllLinkHref(): Promise<string> {
     const activeContent = await this.tabComponent.getActiveTabContent();
     const viewAllLink = activeContent.locator('.pjc-link-text').first();
-    return await viewAllLink.getAttribute('href') || '';
+    return (await viewAllLink.getAttribute('href')) || '';
   }
 
   // Combined operations
@@ -135,32 +135,34 @@ export class ExperienceSection {
     return await this.experienceCard.getCardsByYear(year, containerSelector);
   }
 
-  async getAllTabsData(): Promise<Array<{
-    tabName: string;
-    cards: ExperienceCardData[];
-    viewAllLink: string;
-  }>> {
+  async getAllTabsData(): Promise<
+    Array<{
+      tabName: string;
+      cards: ExperienceCardData[];
+      viewAllLink: string;
+    }>
+  > {
     const tabs = await this.getAvailableTabs();
     const allTabsData = [];
 
     // Map tab names to expected URLs
     const urlMap: Record<string, string> = {
-      '大学受験': '/shingaku/experience/university/',
-      '高校受験': '/shingaku/experience/highschool/',
-      '中学受験': '/shingaku/experience/junior/'
+      大学受験: '/shingaku/experience/university/',
+      高校受験: '/shingaku/experience/highschool/',
+      中学受験: '/shingaku/experience/junior/',
     };
 
     for (const tab of tabs) {
       await this.tabComponent.clickTabByText(tab);
       await this.page.waitForTimeout(1000); // Increased wait time
-      
+
       const cards = await this.getExperienceCards();
-      const viewAllLink = urlMap[tab.trim()] || await this.getViewAllLinkHref();
-      
+      const viewAllLink = urlMap[tab.trim()] || (await this.getViewAllLinkHref());
+
       allTabsData.push({
         tabName: tab,
         cards,
-        viewAllLink
+        viewAllLink,
       });
     }
 

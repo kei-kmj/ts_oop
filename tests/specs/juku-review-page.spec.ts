@@ -18,7 +18,7 @@ test.describe('JukuReviewPage', () => {
 
     // Check if review navigation is visible
     expect(await reviewPage.reviewNavigation.isVisible()).toBeTruthy();
-    
+
     // Check if category filter is visible
     expect(await reviewPage.categoryFilter.isVisible()).toBeTruthy();
   });
@@ -64,7 +64,7 @@ test.describe('JukuReviewPage', () => {
 
     // Click on teacher quality filter
     await reviewPage.filterByCategory('teacher');
-    
+
     // Verify URL changed
     const currentUrl = reviewPage.page.url();
     expect(currentUrl).toContain('category=juku_teacher');
@@ -88,7 +88,7 @@ test.describe('JukuReviewPage', () => {
       respondentTypes: ['parent'],
       purposes: ['highSchool'],
       ratings: [4, 5],
-      keyword: 'テスト'
+      keyword: 'テスト',
     });
 
     // Wait for results to update
@@ -102,7 +102,7 @@ test.describe('JukuReviewPage', () => {
     // Open and close modal
     await reviewPage.openFilterModal();
     expect(await reviewPage.filterModal.isOpen()).toBeTruthy();
-    
+
     await reviewPage.closeFilterModal();
     expect(await reviewPage.filterModal.isOpen()).toBeFalsy();
   });
@@ -116,7 +116,7 @@ test.describe('JukuReviewPage', () => {
 
     // Check if load more button exists
     const hasLoadMore = await reviewPage.loadMoreButton.isVisible();
-    
+
     if (hasLoadMore) {
       await reviewPage.loadMoreReviews();
       const updatedCards = await reviewPage.getReviewCards();
@@ -133,13 +133,11 @@ test.describe('JukuReviewPage', () => {
 
     // Search for a keyword
     const matchCount = await reviewPage.searchReviewsByKeyword('料金');
-    
+
     // If there are matches, verify they exist
     if (matchCount > 0) {
       const allCardsData = await reviewPage.getAllReviewCardsData();
-      const matchingCards = allCardsData.filter(card => 
-        card.content.includes('料金') || card.title.includes('料金')
-      );
+      const matchingCards = allCardsData.filter((card) => card.content.includes('料金') || card.title.includes('料金'));
       expect(matchingCards.length).toBeGreaterThan(0);
     }
   });
@@ -153,7 +151,7 @@ test.describe('JukuReviewPage', () => {
       dateSort: 'old',
       evaluationSort: 'low',
       respondentTypes: ['student'],
-      ratings: [3]
+      ratings: [3],
     });
 
     // Get active filters

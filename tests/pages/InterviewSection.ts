@@ -18,11 +18,10 @@ export class InterviewSection {
     this.tabComponent = new TabComponent(page, '.bjp-home-interview .bjp-home-tab');
     this.interviewCard = new InterviewCard(page);
     this.viewAllLinks = this.container.locator('.pjc-link-text');
-    
   }
 
   async getTitle(): Promise<string> {
-    return await this.title.textContent() || '';
+    return (await this.title.textContent()) || '';
   }
 
   async isVisible(): Promise<boolean> {
@@ -92,8 +91,8 @@ export class InterviewSection {
   async clickInterviewCardByDestination(destination: string): Promise<void> {
     const activeContent = await this.tabComponent.getActiveTabContent();
     const cards = await this.getInterviewCards();
-    const targetCard = cards.find(card => card.destination.includes(destination));
-    
+    const targetCard = cards.find((card) => card.destination.includes(destination));
+
     if (targetCard) {
       const card = activeContent.locator(`.bjc-post-interview[href="${targetCard.href}"]`);
       await card.click();
@@ -103,8 +102,8 @@ export class InterviewSection {
   async clickInterviewCardByJuku(jukuName: string): Promise<void> {
     const activeContent = await this.tabComponent.getActiveTabContent();
     const cards = await this.getInterviewCards();
-    const targetCard = cards.find(card => card.mainJuku.includes(jukuName));
-    
+    const targetCard = cards.find((card) => card.mainJuku.includes(jukuName));
+
     if (targetCard) {
       const card = activeContent.locator(`.bjc-post-interview[href="${targetCard.href}"]`);
       await card.click();
@@ -113,13 +112,13 @@ export class InterviewSection {
 
   async getDestinationsInActiveTab(): Promise<string[]> {
     const cards = await this.getInterviewCards();
-    return cards.map(card => card.destination);
+    return cards.map((card) => card.destination);
   }
 
   async getJukusInActiveTab(): Promise<string[]> {
     const cards = await this.getInterviewCards();
     const jukus = new Set<string>();
-    cards.forEach(card => {
+    cards.forEach((card) => {
       jukus.add(card.mainJuku);
       if (card.concurrentJuku && card.concurrentJuku !== 'なし') {
         jukus.add(card.concurrentJuku);
@@ -138,30 +137,30 @@ export class InterviewSection {
   async getViewAllLinkText(): Promise<string> {
     // Find all view all links that contain "合格者インタビュー一覧へ" anywhere in the page
     const viewAllLink = this.page.locator('a').filter({ hasText: '合格者インタビュー一覧へ' }).first();
-    return await viewAllLink.textContent() || '';
+    return (await viewAllLink.textContent()) || '';
   }
 
   async getViewAllLinkHref(): Promise<string> {
     // Get the currently active tab to determine which link to return
     const activeTab = await this.getActiveTab();
-    
+
     if (activeTab.includes('大学受験')) {
       // Find university interview link
       const universityLink = this.page.locator('a[href*="/passed-interview/list/university/"]').first();
-      return await universityLink.getAttribute('href') || '';
+      return (await universityLink.getAttribute('href')) || '';
     } else if (activeTab.includes('高校受験')) {
       // Find high school interview link
       const highSchoolLink = this.page.locator('a[href*="/passed-interview/list/high/"]').first();
-      return await highSchoolLink.getAttribute('href') || '';
+      return (await highSchoolLink.getAttribute('href')) || '';
     } else if (activeTab.includes('中学受験')) {
       // Find junior high school interview link
       const juniorHighLink = this.page.locator('a[href*="/passed-interview/list/junior/"]').first();
-      return await juniorHighLink.getAttribute('href') || '';
+      return (await juniorHighLink.getAttribute('href')) || '';
     }
-    
+
     // Fallback to university link
     const universityLink = this.page.locator('a[href*="/passed-interview/list/university/"]').first();
-    return await universityLink.getAttribute('href') || '';
+    return (await universityLink.getAttribute('href')) || '';
   }
 
   // Combined operations
@@ -181,22 +180,24 @@ export class InterviewSection {
     return await this.interviewCard.getCardsByJuku(jukuName, containerSelector);
   }
 
-  async getAllTabsData(): Promise<Array<{
-    tabName: string;
-    cards: InterviewCardData[];
-    pickupCount: number;
-    viewAllLink: string;
-  }>> {
+  async getAllTabsData(): Promise<
+    Array<{
+      tabName: string;
+      cards: InterviewCardData[];
+      pickupCount: number;
+      viewAllLink: string;
+    }>
+  > {
     const tabs = await this.getAvailableTabs();
     const allTabsData = [];
 
     for (const tab of tabs) {
       await this.tabComponent.clickTabByText(tab);
       await this.page.waitForTimeout(500);
-      
+
       const cards = await this.getInterviewCards();
       const pickupCards = await this.getPickupCards();
-      
+
       // Directly map tab names to expected URLs since tab switching isn't working
       let viewAllLink = '';
       if (tab.includes('大学受験')) {
@@ -206,12 +207,12 @@ export class InterviewSection {
       } else if (tab.includes('中学受験')) {
         viewAllLink = '/passed-interview/list/junior/';
       }
-      
+
       allTabsData.push({
         tabName: tab,
         cards,
         pickupCount: pickupCards.length,
-        viewAllLink
+        viewAllLink,
       });
     }
 
@@ -227,28 +228,28 @@ export class InterviewSection {
     uniqueDestinations: string[];
   }> {
     const cards = await this.getInterviewCards();
-    const pickupCards = cards.filter(card => card.isPickup);
-    const maleCards = cards.filter(card => card.gender === '男性');
-    const femaleCards = cards.filter(card => card.gender === '女性');
-    
+    const pickupCards = cards.filter((card) => card.isPickup);
+    const maleCards = cards.filter((card) => card.gender === '男性');
+    const femaleCards = cards.filter((card) => card.gender === '女性');
+
     const uniqueJukus = new Set<string>();
     const uniqueDestinations = new Set<string>();
-    
-    cards.forEach(card => {
+
+    cards.forEach((card) => {
       uniqueJukus.add(card.mainJuku);
       uniqueDestinations.add(card.destination);
       if (card.concurrentJuku && card.concurrentJuku !== 'なし') {
         uniqueJukus.add(card.concurrentJuku);
       }
     });
-    
+
     return {
       totalCards: cards.length,
       pickupCards: pickupCards.length,
       maleCount: maleCards.length,
       femaleCount: femaleCards.length,
       uniqueJukus: Array.from(uniqueJukus),
-      uniqueDestinations: Array.from(uniqueDestinations)
+      uniqueDestinations: Array.from(uniqueDestinations),
     };
   }
 

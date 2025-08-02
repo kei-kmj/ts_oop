@@ -25,7 +25,7 @@ export class JukuTabComponent {
 
   async getActiveTabText(): Promise<string> {
     const activeTab = this.tabItems.filter({ hasClass: 'is-active' }).first();
-    return await activeTab.textContent() || '';
+    return (await activeTab.textContent()) || '';
   }
 
   async clickTabByText(tabText: string): Promise<void> {
@@ -39,7 +39,7 @@ export class JukuTabComponent {
 
   async isTabActive(tabText: string): Promise<boolean> {
     const tab = this.tabItems.filter({ hasText: tabText }).first();
-    const classAttr = await tab.getAttribute('class') || '';
+    const classAttr = (await tab.getAttribute('class')) || '';
     return classAttr.includes('is-active');
   }
 
@@ -60,7 +60,7 @@ export class JukuTabComponent {
         return false;
       },
       { expectedText: expectedTabText, containerSelector: '.bjc-juku-inner-tab-wrap' },
-      { timeout }
+      { timeout },
     );
   }
 }

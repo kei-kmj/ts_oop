@@ -10,7 +10,7 @@ export class TabComponent {
   constructor(page: Page, containerSelector: string = '.tab__list') {
     this.page = page;
     this.container = page.locator(containerSelector);
-    
+
     // Check if this is a juku inner tab navigation
     if (containerSelector.includes('bjc-juku-inner-tab-nav')) {
       this.tabList = this.container;
@@ -44,13 +44,13 @@ export class TabComponent {
 
   async getActiveTabText(): Promise<string> {
     const activeTab = this.tabItems.filter({ hasClass: 'is-active' }).first();
-    const text = await activeTab.textContent() || '';
+    const text = (await activeTab.textContent()) || '';
     return text.trim();
   }
 
   async getActiveTabDataId(): Promise<string> {
     const activeTab = this.tabItems.locator('.is-active');
-    return await activeTab.getAttribute('data-tab') || '';
+    return (await activeTab.getAttribute('data-tab')) || '';
   }
 
   async clickTabByText(tabText: string): Promise<void> {
@@ -88,7 +88,7 @@ export class TabComponent {
     // Wait for the specific tab within this component to have the 'is-active' class
     const targetTab = this.tabItems.filter({ hasText: expectedTabText });
     await targetTab.waitFor({ state: 'visible', timeout: timeout });
-    
+
     // Wait for the target tab to become active
     await this.page.waitForFunction(
       (expectedText) => {
@@ -96,30 +96,32 @@ export class TabComponent {
         return activeTab?.textContent?.trim() === expectedText;
       },
       expectedTabText,
-      { timeout }
+      { timeout },
     );
   }
 
-  async getAllTabData(): Promise<Array<{
-    text: string;
-    dataTab: string;
-    isActive: boolean;
-    index: number;
-  }>> {
+  async getAllTabData(): Promise<
+    Array<{
+      text: string;
+      dataTab: string;
+      isActive: boolean;
+      index: number;
+    }>
+  > {
     const items = await this.getTabItems();
     const tabData = [];
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
-      const text = await item.textContent() || '';
-      const dataTab = await item.getAttribute('data-tab') || '';
+      const text = (await item.textContent()) || '';
+      const dataTab = (await item.getAttribute('data-tab')) || '';
       const isActive = await item.hasClass('is-active');
 
       tabData.push({
         text: text.trim(),
         dataTab,
         isActive,
-        index: i
+        index: i,
       });
     }
 

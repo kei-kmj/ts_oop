@@ -1,6 +1,6 @@
 import { type Locator, type Page } from '@playwright/test';
-import {HeadingLevel} from "../consts/global";
-import {getTab} from "../helper";
+import { HeadingLevel } from '../consts/global';
+import { getTab } from '../helper';
 
 export class AchievementSection {
   readonly heading: Locator;
@@ -11,7 +11,7 @@ export class AchievementSection {
   readonly highSchoolExamList: Locator;
   readonly juniorHighExamList: Locator;
   readonly viewAllLink: Locator;
-  readonly universityItem : Locator
+  readonly universityItem: Locator;
 
   constructor(page: Page) {
     this.universityExamTab = getTab(page, '大学受験', '01-01');
@@ -21,8 +21,8 @@ export class AchievementSection {
     this.universityExamList = page.locator('[data-content="01-01"] ul.bjc-juku-pass_record');
     this.highSchoolExamList = page.locator('[data-content="01-02"] ul.bjc-juku-pass_record');
     this.juniorHighExamList = page.locator('[data-content="01-03"] ul.bjc-juku-pass_record');
-    this.viewAllLink = page.getByRole('link', {name: /の合格実績をすべて見る/});
-    this.universityItem = page.getByRole('listitem', {name: /大学/});
+    this.viewAllLink = page.getByRole('link', { name: /の合格実績をすべて見る/ });
+    this.universityItem = page.getByRole('listitem', { name: /大学/ });
   }
 
   async clickUniversityExamTab() {
@@ -38,6 +38,6 @@ export class AchievementSection {
   }
 
   async clickAllLink() {
-    await this.viewAllLink.click()
+    await this.viewAllLink.click();
   }
 }

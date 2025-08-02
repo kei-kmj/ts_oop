@@ -25,32 +25,32 @@ export class JukuHeader extends Base {
 
   constructor(page: Page) {
     super(page);
-    
+
     // Main container
     this.container = page.locator('.bjc-juku-header-box');
-    
+
     // Title
     this.title = this.container.locator('.bjc-juku-header-title');
-    
+
     // Evaluation section
     this.evaluationSection = this.container.locator('.bjc-juku-header-evaluation');
     this.evaluationStars = this.evaluationSection.locator('.bjc-juku-header-evaluation-star');
     this.evaluationAverage = this.evaluationSection.locator('.bjc-juku-header-evaluation-average_number');
     this.evaluationCount = this.evaluationSection.locator('.bjc-juku-header-evaluation-number');
     this.evaluationCountLink = this.evaluationCount.locator('a');
-    
+
     // Tag section
     this.tagSection = this.container.locator('.bjc-juku-header-tag');
-    
+
     // Grade tags
-    this.gradeTagHeading = this.tagSection.locator('.bjc-juku-header-tag-row').filter({ 
-      has: page.locator('.bjc-juku-header-tag-heading', { hasText: '対象学年' })
+    this.gradeTagHeading = this.tagSection.locator('.bjc-juku-header-tag-row').filter({
+      has: page.locator('.bjc-juku-header-tag-heading', { hasText: '対象学年' }),
     });
     this.gradeTagList = this.gradeTagHeading.locator('.bjc-juku-header-tag-list.grade');
-    
+
     // Lesson format tags
-    this.lessonTagHeading = this.tagSection.locator('.bjc-juku-header-tag-row').filter({ 
-      has: page.locator('.bjc-juku-header-tag-heading', { hasText: '授業形式' })
+    this.lessonTagHeading = this.tagSection.locator('.bjc-juku-header-tag-row').filter({
+      has: page.locator('.bjc-juku-header-tag-heading', { hasText: '授業形式' }),
     });
     this.lessonTagList = this.lessonTagHeading.locator('.bjc-juku-header-tag-list.lesson');
   }
@@ -60,11 +60,11 @@ export class JukuHeader extends Base {
   }
 
   async getJukuName(): Promise<string> {
-    return await this.title.textContent() || '';
+    return (await this.title.textContent()) || '';
   }
 
   async getRating(): Promise<number> {
-    const ratingText = await this.evaluationAverage.textContent() || '0';
+    const ratingText = (await this.evaluationAverage.textContent()) || '0';
     return parseFloat(ratingText);
   }
 
@@ -80,7 +80,7 @@ export class JukuHeader extends Base {
     let inert = 0;
 
     for (const star of stars) {
-      const classes = await star.getAttribute('class') || '';
+      const classes = (await star.getAttribute('class')) || '';
       if (classes.includes('half')) {
         half++;
       } else if (classes.includes('inert')) {
@@ -94,18 +94,18 @@ export class JukuHeader extends Base {
       full,
       half,
       inert,
-      total: stars.length
+      total: stars.length,
     };
   }
 
   async getReviewCount(): Promise<number> {
-    const countText = await this.evaluationCountLink.textContent() || '';
+    const countText = (await this.evaluationCountLink.textContent()) || '';
     const match = countText.match(/\((\d+)\)/);
     return match ? parseInt(match[1], 10) : 0;
   }
 
   async getReviewLinkHref(): Promise<string> {
-    return await this.evaluationCountLink.getAttribute('href') || '';
+    return (await this.evaluationCountLink.getAttribute('href')) || '';
   }
 
   async clickReviewLink(): Promise<void> {
@@ -115,35 +115,35 @@ export class JukuHeader extends Base {
   async getTargetGrades(): Promise<string[]> {
     const items = await this.gradeTagList.locator('li').all();
     const grades: string[] = [];
-    
+
     for (const item of items) {
       const text = await item.textContent();
       if (text) grades.push(text.trim());
     }
-    
+
     return grades;
   }
 
   async getLessonFormats(): Promise<string[]> {
     const items = await this.lessonTagList.locator('li').all();
     const formats: string[] = [];
-    
+
     for (const item of items) {
       const text = await item.textContent();
       if (text) formats.push(text.trim());
     }
-    
+
     return formats;
   }
 
   async hasOnlineSupport(): Promise<boolean> {
     const formats = await this.getLessonFormats();
-    return formats.some(format => format.includes('オンライン'));
+    return formats.some((format) => format.includes('オンライン'));
   }
 
   async isIndividualTutoring(): Promise<boolean> {
     const formats = await this.getLessonFormats();
-    return formats.some(format => format.includes('個別') || format.includes('1対1'));
+    return formats.some((format) => format.includes('個別') || format.includes('1対1'));
   }
 
   async getJukuHeaderData(): Promise<JukuHeaderData> {
@@ -152,7 +152,7 @@ export class JukuHeader extends Base {
       this.getRating(),
       this.getReviewCount(),
       this.getTargetGrades(),
-      this.getLessonFormats()
+      this.getLessonFormats(),
     ]);
 
     return {
@@ -160,7 +160,7 @@ export class JukuHeader extends Base {
       rating,
       reviewCount,
       targetGrades,
-      lessonFormats
+      lessonFormats,
     };
   }
 
@@ -189,25 +189,24 @@ export class JukuHeader extends Base {
   async verifyRatingConsistency(): Promise<boolean> {
     const rating = await this.getRating();
     const starCount = await this.getStarCount();
-    
+
     // Calculate expected stars based on rating
     const expectedFull = Math.floor(rating);
     const remainder = rating % 1;
-    
+
     // Half star is shown for ratings with decimal >= 0.3 and < 0.8
-    const expectedHalf = (remainder >= 0.3 && remainder < 0.8) ? 1 : 0;
-    
+    const expectedHalf = remainder >= 0.3 && remainder < 0.8 ? 1 : 0;
+
     // If remainder >= 0.8, it rounds up to a full star
     const roundedUp = remainder >= 0.8 ? 1 : 0;
-    
+
     const expectedTotal = 5;
     const actualFullStars = starCount.full;
     const expectedFullStars = expectedFull + roundedUp;
-    
-    
-    return actualFullStars === expectedFullStars && 
-           starCount.half === expectedHalf && 
-           starCount.total === expectedTotal;
+
+    return (
+      actualFullStars === expectedFullStars && starCount.half === expectedHalf && starCount.total === expectedTotal
+    );
   }
 
   async getGradeRange(): Promise<{
@@ -222,19 +221,19 @@ export class JukuHeader extends Base {
 
     const gradeText = grades[0]; // Assuming format like "小学1年生〜高卒生"
     const match = gradeText.match(/(.+)〜(.+)/);
-    
+
     if (match) {
       return {
         minGrade: match[1].trim(),
         maxGrade: match[2].trim(),
-        includesAll: true
+        includesAll: true,
       };
     }
 
     return {
       minGrade: gradeText,
       maxGrade: gradeText,
-      includesAll: false
+      includesAll: false,
     };
   }
 
@@ -254,21 +253,21 @@ export class JukuHeader extends Base {
       items: string[];
     };
   }> {
-    const gradeHeading = await this.gradeTagHeading.locator('.bjc-juku-header-tag-heading').textContent() || '';
-    const lessonHeading = await this.lessonTagHeading.locator('.bjc-juku-header-tag-heading').textContent() || '';
-    
+    const gradeHeading = (await this.gradeTagHeading.locator('.bjc-juku-header-tag-heading').textContent()) || '';
+    const lessonHeading = (await this.lessonTagHeading.locator('.bjc-juku-header-tag-heading').textContent()) || '';
+
     const grades = await this.getTargetGrades();
     const lessonFormats = await this.getLessonFormats();
 
     return {
       grades: {
         heading: gradeHeading.trim(),
-        items: grades
+        items: grades,
       },
       lessonFormats: {
         heading: lessonHeading.trim(),
-        items: lessonFormats
-      }
+        items: lessonFormats,
+      },
     };
   }
 }

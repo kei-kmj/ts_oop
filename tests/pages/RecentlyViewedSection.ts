@@ -11,22 +11,22 @@ export class RecentlyViewedSection {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Section container
     this.sectionContainer = page.locator('.bjp-home-favorite');
-    
+
     // Section title
     this.sectionTitle = page.getByRole('heading', { level: 2 }).filter({ hasText: '最近見た塾・教室' });
-    
+
     // View all link
     this.viewAllLink = page.getByRole('link', { name: 'すべて見る' });
-    
+
     // Content list container
     this.contentList = page.locator('.bjp-home-favorite__contents');
-    
+
     // Juku items (orange label)
     this.jukuItems = page.locator('.bjp-home-favorite__content').filter({ has: page.locator('.label-orange') });
-    
+
     // Classroom items (blue label)
     this.classroomItems = page.locator('.bjp-home-favorite__content').filter({ has: page.locator('.label-blue') });
   }
@@ -57,17 +57,17 @@ export class RecentlyViewedSection {
 
   async getJukuItemTitle(index: number): Promise<string> {
     const item = this.jukuItems.nth(index);
-    return await item.locator('.title').textContent() || '';
+    return (await item.locator('.title').textContent()) || '';
   }
 
   async getClassroomItemTitle(index: number): Promise<string> {
     const item = this.classroomItems.nth(index);
-    return await item.locator('.title').textContent() || '';
+    return (await item.locator('.title').textContent()) || '';
   }
 
   async getJukuItemText(index: number): Promise<string> {
     const item = this.jukuItems.nth(index);
-    return await item.locator('.text').textContent() || '';
+    return (await item.locator('.text').textContent()) || '';
   }
 
   async isSectionVisible(): Promise<boolean> {

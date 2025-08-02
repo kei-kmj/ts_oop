@@ -10,16 +10,16 @@ export class AreaSearchSection {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Section container
     this.sectionContainer = page.locator('.bjp-home-area-search--sp');
-    
+
     // Section title
     this.sectionTitle = page.getByRole('heading', { level: 2 }).filter({ hasText: '全国の塾・予備校を探す' });
-    
+
     // Search area list
     this.searchAreaList = page.getByRole('list').filter({ has: page.locator('.bjp-home-area-search-area') });
-    
+
     // Search buttons - using link role with text content
     this.searchByCityButton = page.getByRole('link').filter({ hasText: '市区町村から探す' });
     this.searchByStationButton = page.getByRole('link').filter({ hasText: '路線・駅から探す' });
@@ -34,7 +34,7 @@ export class AreaSearchSection {
   }
 
   async getSectionTitleText(): Promise<string> {
-    return await this.sectionTitle.textContent() || '';
+    return (await this.sectionTitle.textContent()) || '';
   }
 
   async isSearchByCityButtonVisible(): Promise<boolean> {

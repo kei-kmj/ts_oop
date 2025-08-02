@@ -11,15 +11,15 @@ export class CitySelectPage extends Base {
 
   constructor(page: Page) {
     super(page);
-    
+
     // Header elements
     this.backLink = page.getByRole('link', { name: '戻る' });
     this.pageTitle = page.getByRole('heading', { level: 1 });
-    
+
     // Last search condition
     this.lastSearchConditionSection = page.locator('#last-search-condition');
     this.lastSearchConditionText = this.lastSearchConditionSection.locator('.bjc-search-history-text');
-    
+
     // City links - use more generic approach
     this.cityLinksContainer = page.locator('main, .main-content');
     this.cityLinks = page.locator('a[href*="/search/requirement/grade/"]');
@@ -35,7 +35,7 @@ export class CitySelectPage extends Base {
   }
 
   async getLastSearchConditionText(): Promise<string> {
-    return await this.lastSearchConditionText.textContent() || '';
+    return (await this.lastSearchConditionText.textContent()) || '';
   }
 
   async hasLastSearchCondition(): Promise<boolean> {
@@ -72,18 +72,18 @@ export class CitySelectPage extends Base {
   } | null> {
     const cityLink = this.page.getByRole('link').filter({ hasText: cityName }).first();
     const count = await cityLink.count();
-    
+
     if (count === 0) {
       return null;
     }
 
-    const fullText = await cityLink.textContent() || '';
-    const href = await cityLink.getAttribute('href') || '';
-    
+    const fullText = (await cityLink.textContent()) || '';
+    const href = (await cityLink.getAttribute('href')) || '';
+
     // Extract count from text like "札幌市（1721件）"
     const countMatch = fullText.match(/（(\d+)件）/);
     const resultCount = countMatch ? parseInt(countMatch[1], 10) : 0;
-    
+
     // Extract prefecture and address code from href
     const urlParams = new URLSearchParams(href.split('?')[1] || '');
     const prefecture = urlParams.get('prefecture') || '';
@@ -95,36 +95,38 @@ export class CitySelectPage extends Base {
       count: resultCount,
       href,
       prefecture,
-      addressCode
+      addressCode,
     };
   }
 
   // Get all city data on the page
-  async getAllCityData(): Promise<Array<{
-    name: string;
-    fullText: string;
-    count: number;
-    href: string;
-    prefecture: string;
-    addressCode: string;
-  }>> {
+  async getAllCityData(): Promise<
+    Array<{
+      name: string;
+      fullText: string;
+      count: number;
+      href: string;
+      prefecture: string;
+      addressCode: string;
+    }>
+  > {
     const links = this.cityLinks;
     const linkCount = await links.count();
     const cityData = [];
 
     for (let i = 0; i < linkCount; i++) {
       const link = links.nth(i);
-      const fullText = await link.textContent() || '';
-      const href = await link.getAttribute('href') || '';
-      
+      const fullText = (await link.textContent()) || '';
+      const href = (await link.getAttribute('href')) || '';
+
       // Extract city name (remove count part)
       const nameMatch = fullText.match(/^([^（]+)/);
       const name = nameMatch ? nameMatch[1].trim() : fullText;
-      
+
       // Extract count
       const countMatch = fullText.match(/（(\d+)件）/);
       const count = countMatch ? parseInt(countMatch[1], 10) : 0;
-      
+
       // Extract URL parameters
       const urlParams = new URLSearchParams(href.split('?')[1] || '');
       const prefecture = urlParams.get('prefecture') || '';
@@ -136,7 +138,7 @@ export class CitySelectPage extends Base {
         count,
         href,
         prefecture,
-        addressCode
+        addressCode,
       });
     }
 
@@ -144,16 +146,21 @@ export class CitySelectPage extends Base {
   }
 
   // Get cities with specific count range
-  async getCitiesWithCountRange(minCount: number, maxCount: number): Promise<Array<{
-    name: string;
-    fullText: string;
-    count: number;
-    href: string;
-    prefecture: string;
-    addressCode: string;
-  }>> {
+  async getCitiesWithCountRange(
+    minCount: number,
+    maxCount: number,
+  ): Promise<
+    Array<{
+      name: string;
+      fullText: string;
+      count: number;
+      href: string;
+      prefecture: string;
+      addressCode: string;
+    }>
+  > {
     const allCities = await this.getAllCityData();
-    return allCities.filter(city => city.count >= minCount && city.count <= maxCount);
+    return allCities.filter((city) => city.count >= minCount && city.count <= maxCount);
   }
 
   // Get city with highest count
@@ -167,21 +174,23 @@ export class CitySelectPage extends Base {
   } | null> {
     const allCities = await this.getAllCityData();
     if (allCities.length === 0) return null;
-    
-    return allCities.reduce((max, city) => city.count > max.count ? city : max);
+
+    return allCities.reduce((max, city) => (city.count > max.count ? city : max));
   }
 
   // Search for cities by name pattern
-  async searchCitiesByPattern(pattern: RegExp): Promise<Array<{
-    name: string;
-    fullText: string;
-    count: number;
-    href: string;
-    prefecture: string;
-    addressCode: string;
-  }>> {
+  async searchCitiesByPattern(pattern: RegExp): Promise<
+    Array<{
+      name: string;
+      fullText: string;
+      count: number;
+      href: string;
+      prefecture: string;
+      addressCode: string;
+    }>
+  > {
     const allCities = await this.getAllCityData();
-    return allCities.filter(city => pattern.test(city.name));
+    return allCities.filter((city) => pattern.test(city.name));
   }
 
   async waitForPageToLoad(): Promise<void> {

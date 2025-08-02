@@ -12,16 +12,19 @@ export class JukuInterviewSection {
   constructor(page: Page) {
     this.page = page;
     // Find the specific interview section by looking for the one with interview content
-    this.container = page.locator('.bjc-juku-inner-tab-wrap').filter({ 
-      has: page.locator('.bjc-posts-interview')
-    }).first();
-    
+    this.container = page
+      .locator('.bjc-juku-inner-tab-wrap')
+      .filter({
+        has: page.locator('.bjc-posts-interview'),
+      })
+      .first();
+
     // Create a juku-specific tab component that works within this container
     this.tabComponent = new JukuTabComponent(page, this.container);
-    
+
     // Reuse InterviewCard component
     this.interviewCard = new InterviewCard(page);
-    
+
     // View all link at the bottom
     this.viewAllLink = this.container.locator('.bjc-juku-link');
   }
@@ -88,8 +91,8 @@ export class JukuInterviewSection {
   async clickInterviewCardByDestination(destination: string): Promise<void> {
     const activeContent = this.container.locator('.js-tab__content.is-active');
     const cards = await this.getInterviewCards();
-    const targetCard = cards.find(card => card.destination.includes(destination));
-    
+    const targetCard = cards.find((card) => card.destination.includes(destination));
+
     if (targetCard) {
       const card = activeContent.locator(`.bjc-post-interview[href="${targetCard.href}"]`);
       await card.click();
@@ -102,11 +105,11 @@ export class JukuInterviewSection {
   }
 
   async getViewAllLinkText(): Promise<string> {
-    return await this.viewAllLink.textContent() || '';
+    return (await this.viewAllLink.textContent()) || '';
   }
 
   async getViewAllLinkHref(): Promise<string> {
-    return await this.viewAllLink.getAttribute('href') || '';
+    return (await this.viewAllLink.getAttribute('href')) || '';
   }
 
   async isViewAllLinkVisible(): Promise<boolean> {
@@ -120,24 +123,26 @@ export class JukuInterviewSection {
     return await this.getInterviewCards();
   }
 
-  async getAllTabsInterviewData(): Promise<Array<{
-    tabName: string;
-    cards: InterviewCardData[];
-    cardCount: number;
-  }>> {
+  async getAllTabsInterviewData(): Promise<
+    Array<{
+      tabName: string;
+      cards: InterviewCardData[];
+      cardCount: number;
+    }>
+  > {
     const tabs = await this.getAvailableTabs();
     const allTabsData = [];
 
     for (const tab of tabs) {
       await this.tabComponent.clickTabByText(tab);
       await this.tabComponent.waitForTabChange(tab);
-      
+
       const cards = await this.getInterviewCards();
-      
+
       allTabsData.push({
         tabName: tab,
         cards,
-        cardCount: cards.length
+        cardCount: cards.length,
       });
     }
 
@@ -160,14 +165,14 @@ export class JukuInterviewSection {
   async getJukuRelatedInterviews(jukuName: string): Promise<InterviewCardData[]> {
     const allTabs = await this.getAllTabsInterviewData();
     const relatedInterviews: InterviewCardData[] = [];
-    
+
     for (const tabData of allTabs) {
-      const jukuInterviews = tabData.cards.filter(card => 
-        card.mainJuku.includes(jukuName) || card.concurrentJuku.includes(jukuName)
+      const jukuInterviews = tabData.cards.filter(
+        (card) => card.mainJuku.includes(jukuName) || card.concurrentJuku.includes(jukuName),
       );
       relatedInterviews.push(...jukuInterviews);
     }
-    
+
     return relatedInterviews;
   }
 
@@ -185,15 +190,15 @@ export class JukuInterviewSection {
     const byTab: Record<string, number> = {};
     let asMain = 0;
     let asConcurrent = 0;
-    
+
     // Assuming we're on a specific juku page, get juku name from the page
     const jukuNameElement = this.page.locator('.bjc-juku-header-title');
-    const jukuName = await jukuNameElement.textContent() || '';
-    
+    const jukuName = (await jukuNameElement.textContent()) || '';
+
     for (const tabData of allTabs) {
       totalInterviews += tabData.cardCount;
       byTab[tabData.tabName] = tabData.cardCount;
-      
+
       for (const card of tabData.cards) {
         if (card.mainJuku.includes(jukuName)) {
           asMain++;
@@ -203,14 +208,14 @@ export class JukuInterviewSection {
         }
       }
     }
-    
+
     return {
       totalInterviews,
       byTab,
       jukuMentions: {
         asMain,
-        asConcurrent
-      }
+        asConcurrent,
+      },
     };
   }
 

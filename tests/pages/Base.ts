@@ -1,5 +1,4 @@
-import { type Page, type Locator } from '@playwright/test';
-import { getFullUrl } from '../config/environment';
+import type { Page } from '@playwright/test';
 
 export abstract class Base {
   protected readonly page: Page;
@@ -8,18 +7,21 @@ export abstract class Base {
     this.page = page;
   }
 
-  async goto(path: string) {
-    const fullUrl = getFullUrl(path);
-    await this.page.goto(fullUrl);
+  async goto(path: string): Promise<void> {
+    await this.page.goto(path);
+
+    /** cookie利用許可ポップアップを消す */
+    await this.page.evaluate(() => {
+      const popup = document.querySelector('#cookie-content');
+      if (popup) popup.classList.add('popup-hide');
+    });
   }
 
   async getTitle(): Promise<string> {
     return await this.page.title();
   }
 
-  async extractEntityNameFromTitle(): Promise<string> {
-    const title = await this.getTitle();
-    const match = title.match(/^(.*?)の最新情報を見る/);
-    return match?.[1] ?? '';
+  async goBack(): Promise<void> {
+    await this.page.goBack();
   }
 }

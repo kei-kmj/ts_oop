@@ -8,13 +8,18 @@ export class Header {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Logo/Home link - using alt text of the logo image, first occurrence in header
-    this.logoLink = page.locator('.bjl-header').getByRole('link').filter({ has: page.getByRole('img', { name: '塾選（ジュクセン）' }) });
-    
+    this.logoLink = page
+      .locator('.bjl-header')
+      .getByRole('link')
+      .filter({ has: page.getByRole('img', { name: '塾選（ジュクセン）' }) });
+
     // Campaign button - using alt text of the campaign image
-    this.campaignButton = page.getByRole('button').filter({ has: page.getByRole('img', { name: '7/31までなら入塾で、最大10,000万円プレゼント' }) });
-    
+    this.campaignButton = page
+      .getByRole('button')
+      .filter({ has: page.getByRole('img', { name: '7/31までなら入塾で、最大10,000万円プレゼント' }) });
+
     // Favorites link - using href attribute
     this.favoritesLink = page.locator('.bjl-header a[href="/favorites/"]');
   }
