@@ -1,6 +1,6 @@
 import { Base } from './Base';
 import type { Locator, Page } from '@playwright/test';
-import { HEADER, BUTTONS } from '../fixtures/global';
+import { HEADER, BUTTONS, MESSAGES, CSS_CLASSES } from '../fixtures/global';
 import { ReviewFilterModal } from './components/ReviewFilterModal';
 
 export class ClassroomReview extends Base {
@@ -24,11 +24,11 @@ export class ClassroomReview extends Base {
     this.titleBrandLink = this.title.locator('.bjc-page-header-title--brand-name');
     this.reviewFilterModal = new ReviewFilterModal(page);
     this.filterButton = page.getByRole('button', { name: BUTTONS.FILTER });
-    this.articles = page.locator('.bjc-review-article');
+    this.articles = page.locator(CSS_CLASSES.REVIEW_ARTICLE);
     this.firstArticle = this.articles.first();
-    this.noReviewMessage = page.getByText(/この教室にはまだ口コミがありません。/);
+    this.noReviewMessage = page.getByText(MESSAGES.NO_REVIEW);
     this.jukuReviewListLink = this.articles;
-    this.classroomTopLink = page.getByRole('link', { name: /のトップページへ戻る/ });
+    this.classroomTopLink = page.getByRole('link', { name: new RegExp(MESSAGES.CLASSROOM_TOP_LINK_SUFFIX) });
   }
 
   async gotoClassroomReview(brandId: string, classroomId: string): Promise<void> {

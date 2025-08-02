@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { Base } from './Base';
+import { CSS_CLASSES } from '../fixtures/global';
 
 export interface JukuHeaderData {
   name: string;
@@ -27,10 +28,10 @@ export class JukuHeader extends Base {
     super(page);
 
     // Main container
-    this.container = page.locator('.bjc-juku-header-box');
+    this.container = page.locator(CSS_CLASSES.JUKU_HEADER_BOX);
 
     // Title
-    this.title = this.container.locator('.bjc-juku-header-title');
+    this.title = this.container.getByRole('heading', { level: 1 });
 
     // Evaluation section
     this.evaluationSection = this.container.locator('.bjc-juku-header-evaluation');
@@ -44,13 +45,13 @@ export class JukuHeader extends Base {
 
     // Grade tags
     this.gradeTagHeading = this.tagSection.locator('.bjc-juku-header-tag-row').filter({
-      has: page.locator('.bjc-juku-header-tag-heading', { hasText: '対象学年' }),
+      has: page.getByText('対象学年'),
     });
     this.gradeTagList = this.gradeTagHeading.locator('.bjc-juku-header-tag-list.grade');
 
     // Lesson format tags
     this.lessonTagHeading = this.tagSection.locator('.bjc-juku-header-tag-row').filter({
-      has: page.locator('.bjc-juku-header-tag-heading', { hasText: '授業形式' }),
+      has: page.getByText('授業形式'),
     });
     this.lessonTagList = this.lessonTagHeading.locator('.bjc-juku-header-tag-list.lesson');
   }

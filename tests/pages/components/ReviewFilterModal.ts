@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { BUTTONS, SORT_TYPES, ATTRIBUTE_TYPES, EXAM_TYPES, FORM, TIMEOUTS, RATING_LABELS } from '../../fixtures/global';
 
 export class ReviewFilterModal {
   readonly page: Page;
@@ -40,44 +41,44 @@ export class ReviewFilterModal {
   constructor(page: Page) {
     this.page = page;
     this.modal = page.locator('#modal-1');
-    this.modalHeading = page.getByRole('heading', { name: '絞り込み' });
+    this.modalHeading = page.getByRole('heading', { name: BUTTONS.FILTER });
     this.closeButton = page.getByRole('button', { name: 'close' });
 
     // Sort options
-    this.dateSortNewRadio = page.getByRole('radio', { name: '新しい順' });
-    this.dateSortOldRadio = page.getByRole('radio', { name: '古い順' });
-    this.evaluationSortHighRadio = page.getByRole('radio', { name: '高い順' });
-    this.evaluationSortLowRadio = page.getByRole('radio', { name: '低い順' });
+    this.dateSortNewRadio = page.getByRole('radio', { name: SORT_TYPES.DATE_NEW });
+    this.dateSortOldRadio = page.getByRole('radio', { name: SORT_TYPES.DATE_OLD });
+    this.evaluationSortHighRadio = page.getByRole('radio', { name: SORT_TYPES.RATING_HIGH });
+    this.evaluationSortLowRadio = page.getByRole('radio', { name: SORT_TYPES.RATING_LOW });
 
     // Respondent type checkboxes
-    this.parentCheckbox = page.getByRole('checkbox', { name: '保護者' });
-    this.studentCheckbox = page.getByRole('checkbox', { name: '生徒' });
+    this.parentCheckbox = page.getByRole('checkbox', { name: ATTRIBUTE_TYPES.PARENT });
+    this.studentCheckbox = page.getByRole('checkbox', { name: ATTRIBUTE_TYPES.STUDENT });
 
     // Purpose checkboxes
-    this.universityExamCheckbox = page.getByRole('checkbox', { name: '大学受験' });
-    this.highSchoolExamCheckbox = page.getByRole('checkbox', { name: '高校受験' });
-    this.middleSchoolExamCheckbox = page.getByRole('checkbox', { name: '中学受験' });
-    this.elementarySchoolExamCheckbox = page.getByRole('checkbox', { name: '小学校受験' });
-    this.testPreparationCheckbox = page.getByRole('checkbox', { name: 'テスト対策' });
-    this.integratedSchoolCheckbox = page.getByRole('checkbox', { name: '中高一貫校' });
-    this.childrenEnglishCheckbox = page.getByRole('checkbox', { name: '子供英語' });
+    this.universityExamCheckbox = page.getByRole('checkbox', { name: EXAM_TYPES.UNIVERSITY });
+    this.highSchoolExamCheckbox = page.getByRole('checkbox', { name: EXAM_TYPES.HIGH_SCHOOL });
+    this.middleSchoolExamCheckbox = page.getByRole('checkbox', { name: EXAM_TYPES.JUNIOR_HIGH });
+    this.elementarySchoolExamCheckbox = page.getByRole('checkbox', { name: EXAM_TYPES.ELEMENTARY });
+    this.testPreparationCheckbox = page.getByRole('checkbox', { name: EXAM_TYPES.TEST_PREP });
+    this.integratedSchoolCheckbox = page.getByRole('checkbox', { name: EXAM_TYPES.INTEGRATED });
+    this.childrenEnglishCheckbox = page.getByRole('checkbox', { name: EXAM_TYPES.ENGLISH });
 
     // Rating checkboxes
-    this.rating5Checkbox = page.getByRole('checkbox', { name: '星5' });
-    this.rating4Checkbox = page.getByRole('checkbox', { name: '星4' });
-    this.rating3Checkbox = page.getByRole('checkbox', { name: '星3' });
-    this.rating2Checkbox = page.getByRole('checkbox', { name: '星2' });
-    this.rating1Checkbox = page.getByRole('checkbox', { name: '星1' });
+    this.rating5Checkbox = page.getByRole('checkbox', { name: RATING_LABELS.STAR_5 });
+    this.rating4Checkbox = page.getByRole('checkbox', { name: RATING_LABELS.STAR_4 });
+    this.rating3Checkbox = page.getByRole('checkbox', { name: RATING_LABELS.STAR_3 });
+    this.rating2Checkbox = page.getByRole('checkbox', { name: RATING_LABELS.STAR_2 });
+    this.rating1Checkbox = page.getByRole('checkbox', { name: RATING_LABELS.STAR_1 });
 
     // Keyword and buttons
-    this.keywordInput = page.getByPlaceholder('キーワードを入力');
-    this.clearButton = page.getByRole('button', { name: 'クリア' });
-    this.submitButton = page.getByRole('button', { name: '検索する' });
+    this.keywordInput = page.getByPlaceholder(FORM.KEYWORD_INPUT);
+    this.clearButton = page.getByRole('button', { name: BUTTONS.CLEAR });
+    this.submitButton = page.getByRole('button', { name: BUTTONS.SEARCH_ACTION });
   }
 
   async isOpen(): Promise<boolean> {
     try {
-      await this.modal.waitFor({ state: 'visible', timeout: 1000 });
+      await this.modal.waitFor({ state: 'visible', timeout: TIMEOUTS.MEDIUM });
       return await this.modal.evaluate((el) => el.classList.contains('is-open'));
     } catch {
       return false;

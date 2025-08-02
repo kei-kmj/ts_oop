@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/fixture';
 import { ClassroomId } from '../pages/ClassroomId';
 import { ClassroomAccess } from '../pages/ClassroomAccess';
 import { ClassroomReview } from '../pages/ClassroomReview';
-import { BUTTONS, CTA_LINK } from '../fixtures/global';
+import { BUTTONS, CTA_LINK, CSS_CLASSES } from '../fixtures/global';
 import { BRAND_IDS, CLASSROOM_IDS } from '../fixtures/s01';
 
 test.describe('教室ページ', () => {
@@ -16,8 +16,8 @@ test.describe('教室ページ', () => {
   test('CTAボタンの両ボタンが表示される', async ({ page }) => {
     // CTAボタンは複数箇所にあり、モバイルでは固定フッターなど異なる場所に表示される
     // 可視状態のCTAボタンが少なくとも1つずつ存在することを確認
-    const trialCTAs = page.locator('.bjc-cta-btn').filter({ hasText: CTA_LINK.TRIAL });
-    const docCTAs = page.locator('.bjc-cta-btn').filter({ hasText: CTA_LINK.DOC });
+    const trialCTAs = page.locator(CSS_CLASSES.CTA_BTN).filter({ hasText: CTA_LINK.TRIAL });
+    const docCTAs = page.locator(CSS_CLASSES.CTA_BTN).filter({ hasText: CTA_LINK.DOC });
     
     // 複数のCTAボタンが存在することを確認（実際には9個存在）
     const trialCount = await trialCTAs.count();
